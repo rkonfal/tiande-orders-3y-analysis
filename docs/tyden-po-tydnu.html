@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TianDe | Plán týden po týdnu</title>
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --surface: #fffdf8;
+      --line: #e7dccb;
+      --ink: #201814;
+      --muted: #6d6259;
+      --accent: #9a3412;
+      --soft: #f6e7d2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(154, 52, 18, 0.10), transparent 28%),
+        radial-gradient(circle at top right, rgba(15, 118, 110, 0.10), transparent 24%),
+        var(--bg);
+      color: var(--ink);
+      font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 28px; }
+    .hero, .panel, .week {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 10px 34px rgba(32, 24, 20, 0.05);
+    }
+    .hero, .panel, .week { padding: 24px; margin-bottom: 18px; }
+    h1 { margin: 0 0 10px; font-size: 40px; line-height: 1.05; }
+    h2 { margin: 0 0 12px; font-size: 24px; }
+    h3 { margin: 0 0 10px; font-size: 18px; }
+    .meta, .note { color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    ul { margin: 0; padding-left: 20px; line-height: 1.7; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--accent); font-size:13px; margin:0 8px 8px 0; }
+    a { color: var(--accent); text-decoration:none; }
+    @media (max-width: 980px) { .grid-2 { grid-template-columns:1fr; } h1 { font-size: 34px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="meta">Praktický provozní plán navázaný na 3letou analýzu TianDe objednávek</div>
+      <h1>Jak to řídit týden po týdnu</h1>
+      <div class="note">Tohle není další analýza. Tohle je provozní plán, jak zjištění převést do práce každý týden. Cíl je jednoduchý: vrátit více lidí k druhé objednávce, vytáhnout český košík, ochránit nejlepší zákazníky a zastavit odliv aktivní báze.</div>
+      <div style="margin-top:14px;">
+        <span class="pill">druhý nákup</span>
+        <span class="pill">návrat starých zákazníků</span>
+        <span class="pill">český košík</span>
+        <span class="pill">nejlepší zákazníci</span>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h2>4 hlavní proudy práce</h2>
+        <ul>
+          <li><strong>Druhý nákup:</strong> každý nový zákazník musí co nejrychleji dostat důvod vrátit se.</li>
+          <li><strong>Třetí a další nákupy:</strong> lidi, kteří už nakoupili 2x až 4x, je potřeba převést do pravidelného návyku.</li>
+          <li><strong>Český košík:</strong> v Česku je potřeba zvednout hodnotu objednávky přes sety, doplnění a dárek od určité částky.</li>
+          <li><strong>Nejlepší zákazníci:</strong> malá skupina lidí dělá velkou část obratu, proto musí mít zvláštní péči.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Co hlídat pořád dokola</h2>
+        <ul>
+          <li>2. objednávka do 30 / 60 / 90 dní</li>
+          <li>3. objednávka do 90 dní od druhé</li>
+          <li>návrat lidí po 46–90 dnech a po 91+ dnech</li>
+          <li>průměrná hodnota objednávky v Česku a na Slovensku</li>
+          <li>počet aktivních nejlepších zákazníků</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="week">
+      <h2>Týdny 1 až 2</h2>
+      <ul>
+        <li>Vytáhnout seznam lidí po 1. nákupu: `0–14 dní`, `15–45 dní`, `46–90 dní`, `91+ dní`.</li>
+        <li>Vytáhnout seznam nejlepších zákazníků a označit ty, kteří delší dobu nenakoupili.</li>
+        <li>Rozdělit komunikaci na Česko a Slovensko.</li>
+        <li>Připravit první dvě návratové vlny: druhý nákup a návrat `46–90 dní`.</li>
+      </ul>
+    </section>
+
+    <section class="week">
+      <h2>Týdny 3 až 4</h2>
+      <ul>
+        <li>Spustit kampaň na druhý nákup pro lidi do 45 dní po prvním nákupu.</li>
+        <li>Spustit návratovou kampaň pro skupinu `46–90 dní`.</li>
+        <li>V Česku nasadit první sety a dárek od určité částky.</li>
+        <li>Každý týden zkontrolovat, jestli se zlepšuje druhý nákup a český košík.</li>
+      </ul>
+    </section>
+
+    <section class="week">
+      <h2>Týdny 5 až 6</h2>
+      <ul>
+        <li>Spustit silnou návratovou kampaň pro skupinu `91+ dní`.</li>
+        <li>U nejlepších zákazníků nasadit přednostní nabídky, dárky a osobnější péči.</li>
+        <li>Vyhodnotit, jestli lépe funguje set, dárek od určité částky nebo doprava zdarma.</li>
+        <li>Na Slovensku zkusit zvláštní návratovou nabídku, protože tam je objednávka hodnotnější.</li>
+      </ul>
+    </section>
+
+    <section class="week">
+      <h2>Týdny 7 až 8</h2>
+      <ul>
+        <li>Podívat se, které první produkty nejčastěji vedou k druhému nákupu a které naopak končí slepě.</li>
+        <li>Posílit nabídku kolem produktů, které vedou k dalším objednávkám.</li>
+        <li>Omezit nebo přepsat první nabídku tam, kde lidé po prvním nákupu mizí.</li>
+        <li>Porovnat výsledky Česka a Slovenska zvlášť, ne dohromady.</li>
+      </ul>
+    </section>
+
+    <section class="week">
+      <h2>Týdny 9 až 10</h2>
+      <ul>
+        <li>Převést vítězné kampaně do pravidelného režimu.</li>
+        <li>Rozšířit práci s lidmi, kteří nakoupili 2x až 4x, aby rychleji udělali další objednávku.</li>
+        <li>Zkontrolovat, jestli se zvedá český košík bez toho, aby spadla marže.</li>
+      </ul>
+    </section>
+
+    <section class="week">
+      <h2>Týdny 11 až 12</h2>
+      <ul>
+        <li>Vyhodnotit celé čtvrtletí: co zvedlo druhý nákup, co vrátilo staré zákazníky a co zvedlo český košík.</li>
+        <li>Rozhodnout, jestli další čtvrtletí dál tlačit hlavně návrat zákazníků, nebo už znovu víc přidat do získávání nových lidí.</li>
+        <li>Udělát finální rozdělení na to, co poběží stále, a co byl jen jednorázový test.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Rytmus řízení</h2>
+      <table>
+        <thead><tr><th>Kdy</th><th>Co udělat</th></tr></thead>
+        <tbody>
+          <tr><td>1x týdně</td><td>Zkontrolovat druhý nákup, návrat jednorázových zákazníků, český košík a aktivitu nejlepších zákazníků.</td></tr>
+          <tr><td>1x za 14 dní</td><td>Vyhodnotit nabídky: set, dárek od určité částky, doprava zdarma, návrat přes bestseller.</td></tr>
+          <tr><td>1x měsíčně</td><td>Porovnat Česko a Slovensko a rozhodnout, která skupina slábne a kde je potřeba přitlačit.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>

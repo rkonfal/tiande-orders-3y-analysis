@@ -26,6 +26,7 @@ This repo contains an aggregated deep-dive over TianDe warehouse order exports f
 - `scripts/build_analysis.py` contains the original aggregated report build
 - `scripts/build_deep_dive.py` regenerates the full deep-dive layer and publishes it to both `docs/index.html` and `docs/deep-dive.html`
 - `docs/ceo-one-pager.html` is the management readout
+- `docs/tyden-po-tydnu.html` is the practical week-by-week operating plan
 - `docs/*.csv` and `docs/summary.json` contain aggregated exports and downloadable working tables
 
 ## Deep-dive coverage

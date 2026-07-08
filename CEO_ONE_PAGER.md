@@ -28,23 +28,23 @@
 | `VIP dormant` | `1 140` | osobní comeback offer |
 | `high AOV low frequency` | `458` | vyšší cadence bez discount trapu |
 
-- Geo lens:
+- Pohled podle země:
   - `CZ`: `564,9 mil. Kč`, AOV `1 558 Kč`, největší objem a největší prostor pro růst košíku
   - `SK`: `62,7 mil. Kč`, AOV `1 863 Kč`, lepší monetizace na objednávku, vhodný model pro bundle a threshold logic
 
 [KEYWORDS & INTENT]
 
 - Hlavní páky:
-  - `second order acceleration`
-  - `third order momentum`
-  - `reactivation`
-  - `routine completion`
-  - `bundle`
-  - `threshold gift`
-  - `VIP protection`
-  - `CZ basket lift`
-  - `SK standalone monetization`
-- Reálný intent podle segmentů:
+  - `zrychlení 2. objednávky`
+  - `zrychlení 3. objednávky`
+  - `návrat zákazníků`
+  - `dokončení rutiny`
+  - `výhodné sety`
+  - `dárek od určité částky`
+  - `ochrana VIP`
+  - `zvýšení českého košíku`
+  - `samostatná práce se Slovenskem`
+- Co jednotlivé skupiny nejspíš potřebují:
   - 1x buyers: vrátit se kvůli doplnění nebo výsledku
   - active repeat: zjednodušit další nákup a zvýšit košík
   - dormant repeat / VIP: dát důvod vrátit se bez plošné slevy
@@ -54,6 +54,20 @@
 ## Co z toho plyne jednou větou
 
 - Pokud se nezačne tvrději pracovat s existující bází, bude firma dál ztrácet objem, i když vracející se zákazníci stále nesou většinu peněz.
+
+## Co víme jistě
+
+- Proti stejnému období roku `2025` klesly tržby v roce `2026` o `10,3 %`.
+- Hlavní důvod není menší košík, ale menší počet aktivních nakupujících. Těch ubylo o `16,5 %`.
+- Pokles tržeb zatím částečně zakrývá růst průměrné objednávky.
+- Firma stojí na úzké skupině věrných zákazníků. Zákazníci se `6 a více` objednávkami dělají `87,6 %` tržeb.
+- Slovensko má hodnotnější objednávku než Česko.
+
+## Co je silná domněnka, ale ne jistota
+
+- Je velmi pravděpodobné, že firmě nestačí přítok nových lidí.
+- Nelze ale jako jistý fakt tvrdit kolaps akvizice jen podle první viděné objednávky, protože nevidíme historii před rokem `2024`.
+- Je pravděpodobné, že byznys stárne a žije hlavně ze starší věrné báze.
 
 ## Jak to celé uchopit
 
@@ -182,6 +196,12 @@
   - porovnat Česko a Slovensko
   - rozhodnout, která skupina slábne
   - upravit kampaně a nabídky na e-shopu
+
+## Týden po týdnu
+
+- Praktická verze bez analytických tabulek je tady:
+  - `docs/tyden-po-tydnu.html`
+  - `TYDEN_PO_TYDNU.md`
 
 ## Finální CEO recommendation
 
