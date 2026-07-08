@@ -1,0 +1,232 @@
+{
+  "coverage": {
+    "start": "2024-01-01 00:24:46",
+    "end": "2026-06-29 15:44:56",
+    "rows_total": 399364,
+    "years": [
+      {
+        "file": "orders_2024_warehouse_order_level.csv",
+        "rows": 192251,
+        "date_min": "2024-01-01 00:24:46",
+        "date_max": "2024-12-31 23:59:42",
+        "size_mb": 30.69
+      },
+      {
+        "file": "orders_2025_warehouse_order_level.csv",
+        "rows": 144515,
+        "date_min": "2025-01-01 00:17:15",
+        "date_max": "2025-12-31 23:53:47",
+        "size_mb": 23.4
+      },
+      {
+        "file": "orders_2026_warehouse_order_level.csv",
+        "rows": 62598,
+        "date_min": "2026-01-01 00:15:53",
+        "date_max": "2026-06-29 15:44:56",
+        "size_mb": 10.19
+      }
+    ]
+  },
+  "topline": {
+    "valid_orders": 396116,
+    "valid_revenue_czk": 627598172.39,
+    "anonymous_valid_orders": 775,
+    "anonymous_valid_revenue_czk": 1618692.0
+  },
+  "behavior_subset": {
+    "identified_orders": 395341,
+    "identified_revenue_czk": 625979480.39,
+    "identified_customers": 52698,
+    "single_observed_order_customers": 15203,
+    "multi_observed_order_customers": 37495,
+    "seen_before_orders": 342643,
+    "seen_before_revenue_czk": 554402449.38,
+    "multi_observed_order_customer_share": 0.7115,
+    "seen_before_order_share": 0.8667,
+    "seen_before_revenue_share": 0.8857
+  },
+  "transitions": [
+    {
+      "position": 1,
+      "window_days": 30,
+      "eligible_customers": 52415,
+      "converted_customers": 10040,
+      "rate": 0.19154822092912335,
+      "median_days_if_within_window": 15.0
+    },
+    {
+      "position": 1,
+      "window_days": 60,
+      "eligible_customers": 52087,
+      "converted_customers": 17154,
+      "rate": 0.3293336149135101,
+      "median_days_if_within_window": 27.0
+    },
+    {
+      "position": 1,
+      "window_days": 90,
+      "eligible_customers": 51611,
+      "converted_customers": 22021,
+      "rate": 0.4266726085524404,
+      "median_days_if_within_window": 34
+    },
+    {
+      "position": 2,
+      "window_days": 30,
+      "eligible_customers": 37338,
+      "converted_customers": 8303,
+      "rate": 0.22237398896566501,
+      "median_days_if_within_window": 16
+    },
+    {
+      "position": 2,
+      "window_days": 60,
+      "eligible_customers": 37139,
+      "converted_customers": 14715,
+      "rate": 0.3962142222461563,
+      "median_days_if_within_window": 28
+    },
+    {
+      "position": 2,
+      "window_days": 90,
+      "eligible_customers": 36865,
+      "converted_customers": 19413,
+      "rate": 0.5265970432659705,
+      "median_days_if_within_window": 36
+    }
+  ],
+  "segments": [
+    {
+      "segment": "1x_91d_plus",
+      "customers": 14284
+    },
+    {
+      "segment": "vip_active",
+      "customers": 4132
+    },
+    {
+      "segment": "vip_dormant",
+      "customers": 1140
+    },
+    {
+      "segment": "repeat_2_4_lapse_46_90d",
+      "customers": 692
+    },
+    {
+      "segment": "repeat_2_4_active_45d",
+      "customers": 642
+    },
+    {
+      "segment": "1x_46_90d",
+      "customers": 507
+    },
+    {
+      "segment": "high_aov_low_frequency",
+      "customers": 458
+    },
+    {
+      "segment": "1x_15_45d",
+      "customers": 281
+    },
+    {
+      "segment": "1x_0_14d",
+      "customers": 131
+    }
+  ],
+  "countries": [
+    {
+      "market": "CZ",
+      "orders": 362443,
+      "revenue_czk": 564854923.91,
+      "identified_orders": 361668,
+      "identified_revenue_czk": 563236231.91,
+      "customers": 47846,
+      "seen_before_orders": 313875,
+      "seen_before_revenue_czk": 499281141.12,
+      "aov_czk": 1558.47,
+      "seen_before_order_share": 0.8679,
+      "seen_before_revenue_share": 0.8865
+    },
+    {
+      "market": "SK",
+      "orders": 33673,
+      "revenue_czk": 62743248.48,
+      "identified_orders": 33673,
+      "identified_revenue_czk": 62743248.48,
+      "customers": 5005,
+      "seen_before_orders": 28768,
+      "seen_before_revenue_czk": 55121308.26,
+      "aov_czk": 1863.31,
+      "seen_before_order_share": 0.8543,
+      "seen_before_revenue_share": 0.8785
+    }
+  ],
+  "years": [
+    {
+      "year": "2024",
+      "valid_orders": 191579,
+      "valid_revenue_czk": 295884074.57,
+      "identified_orders": 191578,
+      "identified_revenue_czk": 295883201.57,
+      "first_seen_orders": 43230,
+      "seen_before_orders": 148348,
+      "first_seen_customers": 43230,
+      "seen_before_order_share": 0.7743,
+      "seen_before_revenue_share": 0.8
+    },
+    {
+      "year": "2025",
+      "valid_orders": 143975,
+      "valid_revenue_czk": 230481571.37,
+      "identified_orders": 143493,
+      "identified_revenue_czk": 229510979.37,
+      "first_seen_orders": 6855,
+      "seen_before_orders": 136638,
+      "first_seen_customers": 6855,
+      "seen_before_order_share": 0.9522,
+      "seen_before_revenue_share": 0.963
+    },
+    {
+      "year": "2026",
+      "valid_orders": 60562,
+      "valid_revenue_czk": 101232526.45,
+      "identified_orders": 60270,
+      "identified_revenue_czk": 100585299.45,
+      "first_seen_orders": 2613,
+      "seen_before_orders": 57657,
+      "first_seen_customers": 2613,
+      "seen_before_order_share": 0.9566,
+      "seen_before_revenue_share": 0.9612
+    }
+  ],
+  "data_quality": [
+    {
+      "flag": "orders_up_to_1_czk",
+      "count": 1422
+    },
+    {
+      "flag": "zero_value_orders",
+      "count": 1057
+    },
+    {
+      "flag": "cz_orders_with_eur_currency",
+      "count": 3015
+    },
+    {
+      "flag": "sk_orders_with_czk_currency",
+      "count": 11
+    },
+    {
+      "flag": "error_status_orders",
+      "count": 145
+    }
+  ],
+  "h1_yoy": {
+    "orders_2026": 60562,
+    "orders_2025": 72916,
+    "orders_delta": -0.1694,
+    "revenue_2026": 101232526.45,
+    "revenue_2025": 112185000.81,
+    "revenue_delta": -0.0976
+  }
+}
