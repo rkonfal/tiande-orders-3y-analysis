@@ -784,6 +784,33 @@ def build():
       </table>
     </section>
 
+    <section class="grid-2">
+      <div class="panel">
+        <h2>Jak to celé uchopit</h2>
+        <ul>
+          <li>Nebrat to jako jeden report, ale jako čtyři samostatné úkoly: návrat po 1. nákupu, zrychlení dalších nákupů, zvýšení českého košíku a péče o nejlepší zákazníky.</li>
+          <li>Nedělat všechno naráz. Začít tím, co vrací peníze nejrychleji: druhý nákup, staré jednorázové zákazníky a český košík.</li>
+          <li>Každou část řídit zvlášť. Jinou nabídku dostane člověk po první objednávce, jinou dostane dlouho neaktivní zákazník a jinou nejlepší zákazník.</li>
+          <li>Česko a Slovensko neřídit jedním textem a jednou nabídkou. Každý trh potřebuje vlastní přístup.</li>
+          <li>Nehodnotit to podle pocitu, ale podle několika čísel, která se budou sledovat pořád dokola.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Jak s tím pracovat každý týden</h2>
+        <table>
+          <thead>
+            <tr><th>Rytmus</th><th>Co přesně udělat</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1x týdně</td><td>Projít druhý nákup do 30 / 60 / 90 dní, návrat jednorázových zákazníků, český košík a počet aktivních nejlepších zákazníků.</td></tr>
+            <tr><td>1x za 14 dní</td><td>Vyhodnotit, která nabídka funguje lépe: set, dárek od určité částky, doprava zdarma nebo návrat přes bestseller.</td></tr>
+            <tr><td>1x měsíčně</td><td>Porovnat Česko a Slovensko, které skupiny sílí a které slábnou, a podle toho upravit kampaně i nabídku na e-shopu.</td></tr>
+            <tr><td>1x za čtvrtletí</td><td>Rozhodnout, jestli se víc vyplatí tlačit návrat zákazníků, nebo už znovu přidat víc peněz do získávání nových lidí.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="panel">
       <h2>1. Proč je rok 2026 slabší</h2>
       <div class="note">Tržby se tady rozpadají na tři hlavní části: počet aktivních zákazníků, kolikrát nakoupí a jak velkou mají objednávku. Srovnání je ve stejném časovém okně `1. 1. – 29. 6. 15:44` v `2025` a `2026`.</div>

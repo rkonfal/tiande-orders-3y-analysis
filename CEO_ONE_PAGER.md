@@ -55,6 +55,27 @@
 
 - Pokud se nezačne tvrději pracovat s existující bází, bude firma dál ztrácet objem, i když vracející se zákazníci stále nesou většinu peněz.
 
+## Jak to celé uchopit
+
+1. Neřídit to jako jeden velký marketingový problém.
+   Jsou tu ve skutečnosti čtyři různé úkoly:
+   - dotlačit druhý nákup
+   - zrychlit třetí a další nákupy
+   - zvednout český košík
+   - chránit nejlepší zákazníky
+
+2. Začít tam, kde je nejrychlejší návrat.
+   První práce má jít do lidí po první objednávce, do starých jednorázových zákazníků a do českého košíku.
+
+3. Každou skupinu vést jinak.
+   Není správně mít jednu univerzální nabídku pro všechny. Jiný text a jinou nabídku potřebuje nový zákazník, jinou dlouho neaktivní člověk a jinou nejlepší zákazník.
+
+4. Oddělit Česko a Slovensko.
+   Slovensko má jinou ekonomiku objednávky. Proto má mít vlastní texty, vlastní nabídky i vlastní vyhodnocení.
+
+5. Udělat z toho pravidelný režim.
+   Každý týden sledovat pár hlavních čísel, jednou za 14 dní vyhodnotit nabídky a jednou měsíčně upravit směr.
+
 ## 5 priorit, které mají největší dopad
 
 1. Zastavit odpad po 1. objednávce.
@@ -141,6 +162,26 @@
 - `SK AOV`
 - `VIP active count`
 - `campaign revenue per send`
+
+## Jak s tím pracovat v praxi
+
+- `1x týdně`
+  - projít druhý nákup
+  - projít návrat jednorázových zákazníků
+  - projít český košík
+  - projít počet aktivních nejlepších zákazníků
+
+- `1x za 14 dní`
+  - porovnat, co funguje lépe:
+    - set
+    - dárek od určité částky
+    - doprava zdarma
+    - návrat přes bestseller
+
+- `1x měsíčně`
+  - porovnat Česko a Slovensko
+  - rozhodnout, která skupina slábne
+  - upravit kampaně a nabídky na e-shopu
 
 ## Finální CEO recommendation
 
