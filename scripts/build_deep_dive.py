@@ -667,7 +667,7 @@ def build():
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Full Deep Dive | TianDe Orders 2024-2026</title>
+  <title>Plná analýza objednávek | TianDe 2024-2026</title>
   <style>
     :root {{
       --bg: #f4efe7;
@@ -725,52 +725,68 @@ def build():
 <body>
   <div class="wrap">
     <section class="hero">
-      <div class="meta">Full deep dive | Pokrytí: {orders[0].dt.strftime('%d.%m.%Y %H:%M')} až {latest_dt.strftime('%d.%m.%Y %H:%M')} | Exporty: 2024 + 2025 + H1 2026 | Aktualizováno: {datetime.now().strftime('%d.%m.%Y %H:%M')}</div>
-      <h1>TianDe Orders 2024-2026: Full Business Deep Dive</h1>
-      <div class="lede">Tohle je plná rozpitvaná verze. Nejen headline a ne jen one-pager. Je tu rozklad propadu 2026, kohorty, segment opportunity sizing, value concentration, CZ vs SK diagnostika, RFM pohled, data caveats i scénáře dopadu.</div>
+      <div class="meta">Plná analýza | Pokrytí: {orders[0].dt.strftime('%d.%m.%Y %H:%M')} až {latest_dt.strftime('%d.%m.%Y %H:%M')} | Exporty: 2024 + 2025 + H1 2026 | Aktualizováno: {datetime.now().strftime('%d.%m.%Y %H:%M')}</div>
+      <h1>TianDe 2024-2026: co se děje, proč se to děje a co s tím</h1>
+      <div class="lede">Tahle verze je už celá pohromadě. Ne jen krátké shrnutí. Je tu rozklad propadu roku 2026, návratnost zákazníků podle měsíců prvního nákupu, kde leží peníze, proč je Slovensko silnější než Česko a hlavně co udělat hned.</div>
       <div style="margin-top:14px;">
-        <span class="pill">Revenue concentration</span>
-        <span class="pill">Cohort retention</span>
-        <span class="pill">Driver decomposition</span>
-        <span class="pill">Segment opportunity sizing</span>
-        <span class="pill">CZ vs SK diagnostic</span>
+        <span class="pill">Kde mizí obrat</span>
+        <span class="pill">Kdo se vrací a kdo ne</span>
+        <span class="pill">Kde leží nejrychlejší peníze</span>
+        <span class="pill">Česko vs Slovensko</span>
+        <span class="pill">Co udělat hned</span>
       </div>
       <a class="cta" href="./ceo-one-pager.html">CEO one-pager</a>
       <a class="cta" href="https://github.com/rkonfal/tiande-orders-3y-analysis" style="margin-left:8px; background:var(--accent2);">GitHub repo</a>
     </section>
 
     <section class="cards">
-      <div class="card"><div class="kicker">Valid topline</div><div class="value">{fmt_money(sum(o.total_czk for o in valid_orders))} Kč</div></div>
-      <div class="card"><div class="kicker">Valid orders</div><div class="value">{fmt_int(len(valid_orders))}</div></div>
-      <div class="card"><div class="kicker">2+ observed orders revenue share</div><div class="value">{fmt_pct(pct(sum(v['revenue_czk'] for v in customer_stats.values() if v['orders'] >= 2), total_identified_revenue))}</div></div>
-      <div class="card"><div class="kicker">Median gap between orders</div><div class="value">{median(all_gaps) if all_gaps else 0} dní</div></div>
+      <div class="card"><div class="kicker">Platné tržby</div><div class="value">{fmt_money(sum(o.total_czk for o in valid_orders))} Kč</div></div>
+      <div class="card"><div class="kicker">Platné objednávky</div><div class="value">{fmt_int(len(valid_orders))}</div></div>
+      <div class="card"><div class="kicker">Podíl tržeb od vracejících se zákazníků</div><div class="value">{fmt_pct(pct(sum(v['revenue_czk'] for v in customer_stats.values() if v['orders'] >= 2), total_identified_revenue))}</div></div>
+      <div class="card"><div class="kicker">Typická mezera mezi objednávkami</div><div class="value">{median(all_gaps) if all_gaps else 0} dní</div></div>
     </section>
 
     <section class="grid-2">
       <div class="panel">
-        <h2>What the current business is really saying</h2>
+        <h2>Co ta čísla opravdu říkají</h2>
         <ul>
-          <li>`YTD 2026` není jen slabší headline. Je to reálný propad objemu i tržeb proti stejnému cut-off oknu `2025`.</li>
-          <li>Byznys je extrémně koncentrovaný do repeat báze: zákazníci s `6+` objednávkami nesou `{fmt_pct(next(r['revenue_share'] for r in value_tier_rows if r['band']=='6+'))}` identifikovaných tržeb.</li>
-          <li>`Top 10 %` zákazníků nese `{fmt_pct(next(r['revenue_share'] for r in concentration_rows if r['bucket']=='top_10pct'))}` tržeb. VIP a value protection není kosmetika, ale core economics.</li>
-          <li>Median mezera mezi objednávkami je `{median(all_gaps) if all_gaps else 0}` dní, p75 je `{sorted(all_gaps)[int((len(all_gaps)-1)*0.75)] if all_gaps else 0}` dní a p90 `{sorted(all_gaps)[int((len(all_gaps)-1)*0.9)] if all_gaps else 0}` dní. Lifecycle timing se proto musí trefovat do 30–90denního okna.</li>
+          <li>`Rok 2026` je proti stejnému období roku `2025` opravdu slabší. Není to dojem, ale reálný pokles objednávek i tržeb.</li>
+          <li>Byznys stojí hlavně na vracejících se zákaznících. Zákazníci s `6 a více` objednávkami nesou `{fmt_pct(next(r['revenue_share'] for r in value_tier_rows if r['band']=='6+'))}` identifikovaných tržeb.</li>
+          <li>`Nejlepších 10 %` zákazníků dělá `{fmt_pct(next(r['revenue_share'] for r in concentration_rows if r['bucket']=='top_10pct'))}` tržeb. O tuto skupinu se musí pečovat zvlášť.</li>
+          <li>Typická mezera mezi objednávkami je `{median(all_gaps) if all_gaps else 0}` dní, horní čtvrtina je kolem `{sorted(all_gaps)[int((len(all_gaps)-1)*0.75)] if all_gaps else 0}` dní a horní desetina kolem `{sorted(all_gaps)[int((len(all_gaps)-1)*0.9)] if all_gaps else 0}` dní. Nejcitlivější okno pro návrat je tedy zhruba `30 až 90 dní`.</li>
         </ul>
       </div>
       <div class="panel">
-        <h2>What was missing before</h2>
+        <h2>Co tady teď nově je</h2>
         <ul>
-          <li>rozklad propadu 2026 na active customers, orders/customer a AOV</li>
-          <li>cohort retention místo jednoho agregátu</li>
-          <li>segment opportunity sizing v penězích</li>
-          <li>value concentration a risk z vysoké závislosti na heavy repeat bázi</li>
-          <li>podrobnější CZ vs SK diagnostika</li>
+          <li>rozklad propadu roku 2026 na počet aktivních zákazníků, četnost nákupů a průměrnou objednávku</li>
+          <li>návratnost zákazníků podle měsíce prvního nákupu místo jednoho souhrnného čísla</li>
+          <li>přehled segmentů v penězích: kde leží největší rychlá příležitost</li>
+          <li>závislost obratu na malé skupině nejlepších zákazníků</li>
+          <li>podrobnější srovnání Česka a Slovenska</li>
         </ul>
       </div>
     </section>
 
     <section class="panel">
-      <h2>1. Driver decomposition: proč je 2026 slabší</h2>
-      <div class="note">Revenue bridge: `Revenue = active customers × orders/customer × AOV` pro stejné časové okno `1. 1. – 29. 6. 15:44` v `2025` vs `2026`.</div>
+      <h2>Co udělat hned</h2>
+      <table>
+        <thead>
+          <tr><th>Krok</th><th>Proč</th><th>Co přesně udělat</th><th>Co hlídat</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1. Dotlačit druhý nákup</td><td>Tady leží nejrychlejší růst bez další akvizice</td><td>Spustit e-mail a SMS na zákazníky 0–45 dní po prvním nákupu. Nabídnout doplnění rutiny, ne plošnou slevu.</td><td>Podíl zákazníků, kteří udělají 2. objednávku do 30 / 60 / 90 dní</td></tr>
+          <tr><td>2. Vrátit staré jednorázové zákazníky</td><td>Skupina `1x 91+ dní` je největší zásoba rychlých peněz</td><td>Udělát návratovou kampaň na bestsellery a jednoduché sety. Netlačit široký katalog, ale jasnou volbu.</td><td>Návratovost skupiny `1x 91+ dní`</td></tr>
+          <tr><td>3. Zvednout košík v Česku</td><td>Česko dělá objem, ale vydělá méně na objednávku než Slovensko</td><td>Nasadit sety, dárek od určité částky a chytřejší nabídku v košíku.</td><td>Průměrná hodnota objednávky v Česku</td></tr>
+          <tr><td>4. Chránit nejlepší zákazníky</td><td>Malá skupina lidí dělá velkou část obratu</td><td>Pro nejlepší zákazníky dát přednostní nabídky, dárky a dřívější přístup, ne obyčejnou slevovou akci.</td><td>Počet aktivních nejlepších zákazníků a jejich obrat</td></tr>
+          <tr><td>5. Oddělit Česko a Slovensko</td><td>Slovensko se chová jinak a objednávka tam vychází lépe</td><td>Vést samostatné kampaně, samostatné texty a samostatné nabídky.</td><td>Rozdíl Česko vs Slovensko v průměrné objednávce a návratovosti</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>1. Proč je rok 2026 slabší</h2>
+      <div class="note">Tržby se tady rozpadají na tři hlavní části: počet aktivních zákazníků, kolikrát nakoupí a jak velkou mají objednávku. Srovnání je ve stejném časovém okně `1. 1. – 29. 6. 15:44` v `2025` a `2026`.</div>
       {table(driver_display, ["market","active_customers_2025","active_customers_2026","active_customers_delta","orders_per_customer_2025","orders_per_customer_2026","orders_per_customer_delta","aov_2025","aov_2026","aov_delta","revenue_2025","revenue_2026","revenue_delta"], {
         "market":"Market",
         "active_customers_2025":"Active cust. 2025",
@@ -786,12 +802,12 @@ def build():
         "revenue_2026":"Revenue 2026",
         "revenue_delta":"Revenue delta"
       })}
-      <div class="note" style="margin-top:10px;">Owner read: pokud padá počet aktivních zákazníků a současně stagnuje frekvence, nelze to zachránit jen kreativou nebo větším spendem. Musí se řešit jak acquisition quality, tak repeat cadence.</div>
+      <div class="note" style="margin-top:10px;">Jednoduše řečeno: když ubývá aktivních zákazníků a zároveň se nezrychluje další nákup, nestačí přikoupit reklamu. Je potřeba řešit kvalitu nových zákazníků i návrat těch stávajících.</div>
     </section>
 
     <section class="panel">
-      <h2>2. Cohort retention: jak kvalitní jsou nové kohorty</h2>
-      <div class="note">Každý řádek = měsíc prvního nákupu. Tohle je užitečnější než jeden agregovaný `1→2` rate, protože ukazuje, jestli kvalita nových kohort padá nebo roste.</div>
+      <h2>2. Jak se vracejí zákazníci podle měsíce prvního nákupu</h2>
+      <div class="note">Každý řádek je měsíc prvního nákupu. Tohle ukazuje, jestli novější skupiny zákazníků jsou lepší, nebo horší než dřív.</div>
       {table(cohort_display, ["cohort","customers","first_order_revenue_czk","rate_30d","rate_60d","rate_90d","rate_180d","third_order_90d"], {
         "cohort":"Cohort",
         "customers":"Customers",
@@ -802,11 +818,12 @@ def build():
         "rate_180d":"2nd <=180d",
         "third_order_90d":"3rd <=90d from 2nd"
       })}
+      <div class="note" style="margin-top:10px;">Praktický závěr: sleduj hlavně nové měsíce. Pokud se zhoršuje druhý nákup do `90 dní`, je problém už v kvalitě prvního nákupu nebo v prvních navazujících kampaních.</div>
     </section>
 
     <section class="grid-2">
       <div class="panel">
-        <h2>3. Segment opportunity sizing</h2>
+        <h2>3. Kde leží nejrychlejší peníze</h2>
         {table(opp_display, ["segment","customers","segment_revenue_czk","avg_aov_czk","avg_recency_days","expected_conversion","estimated_incremental_revenue_czk","priority"], {
           "segment":"Segment",
           "customers":"Customers",
@@ -817,30 +834,30 @@ def build():
           "estimated_incremental_revenue_czk":"Est. uplift",
           "priority":"Priority"
         })}
-        <div class="note" style="margin-top:10px;">Tohle není finance-grade forecast. Je to management sizing, které říká, kde je nejrychlejší návrat energie a rozpočtu.</div>
+        <div class="note" style="margin-top:10px;">Tohle není účetní předpověď. Je to praktický odhad, který ukazuje, kde má práce nejrychlejší návrat.</div>
       </div>
       <div class="panel">
-        <h2>Immediate revenue opportunities</h2>
+        <h2>Co z toho plyne</h2>
         <ul>
-          <li>`1x_91d_plus` je největší levný comeback pool. Už `10 %` návratnost při dnešním průměrném AOV znamená cca `{fmt_money(next(r['estimated_incremental_revenue_czk'] for r in opportunity_rows if r['segment']=='1x_91d_plus'))} Kč` incremental revenue.</li>
-          <li>`repeat_2_4_lapse_46_90d` je menší pool, ale kvalitnější báze, vhodná na rychlé CRM win-backy.</li>
-          <li>`vip_dormant` a `high_aov_low_frequency` jsou malé segmenty, ale vysokohodnotné. Tady se nesmí komunikovat diskontně.</li>
+          <li>`1x_91d_plus` je největší a nejlevnější skupina pro návrat. Už `10 %` návratnost při dnešní průměrné objednávce znamená asi `{fmt_money(next(r['estimated_incremental_revenue_czk'] for r in opportunity_rows if r['segment']=='1x_91d_plus'))} Kč` navíc.</li>
+          <li>`repeat_2_4_lapse_46_90d` je menší skupina, ale kvalitnější. Hodí se pro rychlé návratové kampaně.</li>
+          <li>`vip_dormant` a `high_aov_low_frequency` jsou malé, ale hodnotné skupiny. Tady netlačit slevu, ale důvod vrátit se.</li>
         </ul>
       </div>
     </section>
 
     <section class="grid-2">
       <div class="panel">
-        <h2>4. Customer value concentration</h2>
+        <h2>4. Jak moc obrat stojí na malé skupině lidí</h2>
         {table(conc_display, ["bucket","customers","revenue_share"], {
           "bucket":"Bucket",
           "customers":"Customers",
           "revenue_share":"Revenue share"
         })}
-        <div class="note" style="margin-top:10px;">Top `1 %` zákazníků dělá `{fmt_pct(next(r['revenue_share'] for r in concentration_rows if r['bucket']=='top_1pct'))}` obratu. To je silná monetizační páka i silné riziko koncentrace.</div>
+        <div class="note" style="margin-top:10px;">Nejlepších `1 %` zákazníků dělá `{fmt_pct(next(r['revenue_share'] for r in concentration_rows if r['bucket']=='top_1pct'))}` obratu. To je velká páka, ale i riziko. Když tahle skupina oslabí, pocítí to celý byznys.</div>
       </div>
       <div class="panel">
-        <h2>Order-band economics</h2>
+        <h2>Kolik vydělávají zákazníci podle počtu objednávek</h2>
         {table(tier_display, ["band","customers","revenue_czk","revenue_share"], {
           "band":"Orders/customer",
           "customers":"Customers",
@@ -851,7 +868,7 @@ def build():
     </section>
 
     <section class="panel">
-      <h2>5. CZ vs SK diagnostic</h2>
+      <h2>5. Česko vs Slovensko</h2>
       {table(market_display, ["market","customers","revenue_czk","orders","aov_czk","avg_items_per_order","median_customer_ltv","first_to_second_90d","seen_before_order_share"], {
         "market":"Market",
         "customers":"Customers",
@@ -863,11 +880,11 @@ def build():
         "first_to_second_90d":"1→2 <=90d",
         "seen_before_order_share":"Seen-before share"
       })}
-      <div class="note" style="margin-top:10px;">SK není lepší jen náhodou. Má vyšší AOV, podobnou rychlost `1→2`, a je vhodný jako template pro CZ basket logic. CZ naopak potřebuje vytáhnout hodnotu košíku a ne jen objem objednávek.</div>
+      <div class="note" style="margin-top:10px;">Slovensko není silnější náhodou. Má vyšší průměrnou objednávku a podobnou rychlost návratu. Česko proto nepotřebuje jen víc objednávek, ale hlavně vyšší hodnotu košíku.</div>
     </section>
 
     <section class="panel">
-      <h2>6. Seasonality & monthly bridge</h2>
+      <h2>6. Vývoj po měsících</h2>
       {table(yoy_focus_display, ["month","market","customers","orders","revenue_czk","aov_czk","orders_yoy","revenue_yoy"], {
         "month":"Month",
         "market":"Market",
@@ -882,7 +899,7 @@ def build():
 
     <section class="grid-2">
       <div class="panel">
-        <h2>7. RFM matrix</h2>
+        <h2>7. Přehled zákazníků podle čerstvosti a počtu nákupů</h2>
         {table(rfm_display, ["recency_bucket","frequency_bucket","customers","revenue_czk","revenue_share"], {
           "recency_bucket":"Recency",
           "frequency_bucket":"Frequency",
@@ -892,19 +909,19 @@ def build():
         })}
       </div>
       <div class="panel">
-        <h2>8. Data caveat impact</h2>
+        <h2>8. Datové odchylky a jejich dopad</h2>
         {table(quality_display, ["flag","orders","revenue_czk","revenue_share_of_topline"], {
           "flag":"Flag",
           "orders":"Orders",
           "revenue_czk":"Revenue",
           "revenue_share_of_topline":"Share of topline"
         })}
-        <div class="note" style="margin-top:10px;">Důležité: `first-seen` neznamená first-ever customer. Je to první viděná objednávka v dostupném okně 2024–2026. Proto 2024 funguje jako warm-up rok a musí se tak číst.</div>
+        <div class="note" style="margin-top:10px;">Důležité: `první viděná objednávka` neznamená nutně první objednávku v životě zákazníka. Znamená jen první objednávku v datech, která máme za roky 2024–2026. Rok 2024 je proto potřeba číst opatrně.</div>
       </div>
     </section>
 
     <section class="panel">
-      <h2>9. Scenario model: co může změnit 2026</h2>
+      <h2>9. Co může ještě letos zvednout výsledek</h2>
       {table(scenario_display, ["scenario","first_to_second_90d","reactivation_1x_91d","cz_aov_uplift","estimated_incremental_revenue_czk"], {
         "scenario":"Scenario",
         "first_to_second_90d":"1→2 <=90d",
@@ -912,21 +929,21 @@ def build():
         "cz_aov_uplift":"CZ AOV uplift",
         "estimated_incremental_revenue_czk":"Est. incremental revenue"
       })}
-      <div class="note" style="margin-top:10px;">Base/upside/downside je orientační management model. Smysl: ukázat, že i bez masivního akvizičního tlaku se dá otočit významný kus výkonu čistě přes lifecycle monetizaci.</div>
+      <div class="note" style="margin-top:10px;">Smysl této tabulky je jednoduchý: ukázat, že i bez velkého tlaku na novou akvizici se dá část výkonu vrátit lepší prací s návratem zákazníků a s hodnotou objednávky.</div>
     </section>
 
     <section class="panel">
-      <h2>10. Executive action model</h2>
+      <h2>10. Kdo má co udělat</h2>
       <table>
         <thead>
-          <tr><th>Action</th><th>Why</th><th>Impact</th><th>Effort</th><th>Owner</th><th>KPI</th></tr>
+          <tr><th>Krok</th><th>Proč</th><th>Dopad</th><th>Náročnost</th><th>Kdo</th><th>Metrika</th></tr>
         </thead>
         <tbody>
-          <tr><td>2nd Order Booster pro 1x 0-45d</td><td>nejrychlejší cesta k vyšší repeat monetizaci</td><td>High</td><td>Medium</td><td>CRM / ecom</td><td>1→2 do 30/60/90d</td></tr>
-          <tr><td>Win-back 1x 91+d</td><td>největší adresovatelný pool</td><td>High</td><td>Low</td><td>CRM</td><td>reactivation 91+d</td></tr>
-          <tr><td>CZ bundle + threshold gift</td><td>zvednutí AOV v největším trhu</td><td>High</td><td>Medium</td><td>Ecom / merch</td><td>CZ AOV</td></tr>
-          <tr><td>VIP active / dormant program</td><td>ochrana koncentrované hodnoty</td><td>Medium-High</td><td>Medium</td><td>CRM</td><td>VIP retention</td></tr>
-          <tr><td>Oddělit CZ a SK komunikaci</td><td>SK má jinou ekonomiku objednávky</td><td>Medium</td><td>Low</td><td>CRM / paid</td><td>CZ vs SK AOV, repeat gap</td></tr>
+          <tr><td>Kampaň na druhý nákup pro zákazníky 0–45 dní po prvním nákupu</td><td>nejrychlejší cesta k vyšším tržbám ze stávající báze</td><td>Vysoký</td><td>Střední</td><td>CRM / e-shop</td><td>2. objednávka do 30 / 60 / 90 dní</td></tr>
+          <tr><td>Návratová kampaň pro skupinu 1x 91+ dní</td><td>největší skupina, kde leží rychlé peníze</td><td>Vysoký</td><td>Nízká</td><td>CRM</td><td>návratovost 1x 91+ dní</td></tr>
+          <tr><td>Sety a dárek od určité částky v Česku</td><td>zvednutí průměrné objednávky v největším trhu</td><td>Vysoký</td><td>Střední</td><td>E-shop / obchod</td><td>průměrná objednávka v Česku</td></tr>
+          <tr><td>Zvláštní péče o nejlepší zákazníky</td><td>ochrana nejhodnotnější části obratu</td><td>Střední až vysoký</td><td>Střední</td><td>CRM</td><td>udržení a obrat nejlepších zákazníků</td></tr>
+          <tr><td>Oddělit komunikaci pro Česko a Slovensko</td><td>Slovensko má jinou ekonomiku objednávky</td><td>Střední</td><td>Nízká</td><td>CRM / reklama</td><td>rozdíl mezi Českem a Slovenskem</td></tr>
         </tbody>
       </table>
     </section>

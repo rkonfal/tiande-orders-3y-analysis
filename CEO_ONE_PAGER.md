@@ -2,7 +2,7 @@
 
 [OBJECTIVE]
 
-- Hlavní závěr pro ownera: největší růst neleží v širší akvizici, ale v rychlejším převodu zákazníků z 1. na 2. a z 2. na 3. objednávku, ve win-backu starších 1x buyerů a ve zvýšení hodnoty košíku v CZ.
+- Hlavní závěr pro majitele: největší růst teď neleží v širším shánění nových lidí, ale v rychlejším přechodu zákazníků z 1. na 2. a z 2. na 3. objednávku, v návratu starších jednorázových zákazníků a ve zvýšení hodnoty košíku v Česku.
 - Byznys je zřetelně postavený na existující bázi:
   - valid topline: `396 116` objednávek, `627,6 mil. Kč`
   - identifikovaný subset: `395 341` objednávek, `626,0 mil. Kč`
@@ -34,7 +34,7 @@
 
 [KEYWORDS & INTENT]
 
-- Klíčové byznysové páky:
+- Hlavní páky:
   - `second order acceleration`
   - `third order momentum`
   - `reactivation`
@@ -51,19 +51,19 @@
 
 [CONTENT & COPY]
 
-## Co říká CEO shrnutí jednou větou
+## Co z toho plyne jednou větou
 
-- Pokud se nezačne agresivněji pracovat s existující bází, bude firma dál ztrácet objem, i když repeat zákazníci stále nesou většinu peněz.
+- Pokud se nezačne tvrději pracovat s existující bází, bude firma dál ztrácet objem, i když vracející se zákazníci stále nesou většinu peněz.
 
 ## 5 priorit, které mají největší dopad
 
 1. Zastavit odpad po 1. objednávce.
    Dnes má `15 203` zákazníků jen jednu pozorovanou objednávku. To je největší leak i nejrychlejší růstová páka.
 
-2. Zvednout CZ košík.
+2. Zvednout český košík.
    CZ dělá objem, ale monetizuje hůř než SK. Rozdíl AOV je asi `305 Kč` na objednávku ve prospěch SK.
 
-3. Reaktivovat staré 1x buyers.
+3. Vrátit staré jednorázové zákazníky.
    Pool `1x 91+d` je zdaleka největší. Tady leží levnější obrat než v nové akvizici.
 
 4. Chránit VIP a high-value bázi.
@@ -82,7 +82,7 @@
 
 ## Co okamžitě připravit
 
-- `CEO dashboard`
+- `Přehled pro vedení`
   - objednávky
   - tržby
   - `1→2 do 30/60/90 dní`
@@ -92,13 +92,13 @@
   - `CZ AOV vs SK AOV`
   - `VIP active count`
 
-- `CRM asset pack`
+- `Balík pro CRM`
   - 4 lifecycle emaily
   - 4 SMS
   - 2 landing blocks
   - 1 CZ basket-lift homepage strip
 
-- `Paid asset pack`
+- `Balík pro reklamu`
   - Customer Match publika pro `1x 46-90d`, `1x 91+d`, `VIP dormant`, `high AOV low frequency`
 
 ## Creative direction
@@ -112,24 +112,24 @@
 
 ### 0-30 dní
 
-- Spustit `2nd Order Booster` pro `1x 0-45d`
-- Spustit `46-90d Win-Back`
-- Nasadit `CZ basket-lift` přes bundle + threshold gift
-- Oddělit `CZ` a `SK` v CRM
+- Spustit kampaň na druhý nákup pro `1x 0-45d`
+- Spustit návratovou kampaň pro `46-90d`
+- V Česku nasadit sety a dárek od určité částky
+- Oddělit `Česko` a `Slovensko` v CRM
 
 ### 31-60 dní
 
-- Spustit `91+d Reactivation`
-- Spustit `VIP active` a `VIP dormant` scénáře
+- Spustit návratovou kampaň pro `91+ dní`
+- Spustit zvláštní scénáře pro aktivní a spící nejlepší zákazníky
 - Nasadit Customer Match pro lifecycle segmenty do Meta/Google
 
 ### 61-90 dní
 
-- Převést to do always-on lifecycle programu
-- A/B test:
-  - `gift vs free shipping`
-  - `bundle vs sleva`
-  - `routine completion vs bestseller comeback`
+- Převést to do trvalého programu
+- Otestovat:
+  - `dárek vs doprava zdarma`
+  - `set vs sleva`
+  - `doplnění rutiny vs návrat přes bestsellery`
 
 ## KPI, které bych hlídal týdně
 
@@ -144,7 +144,7 @@
 
 ## Finální CEO recommendation
 
-- Nezvyšovat teď plošně tlak do awarenessu jako první tah.
+- Nezvyšovat teď plošně tlak do obecné akvizice jako první krok.
 - První peníze leží v CRM, reaktivaci a basket-liftu.
 - Pokud se má zlepšit 2026, priorita číslo jedna je:
   - dotlačit 2. objednávku rychleji
