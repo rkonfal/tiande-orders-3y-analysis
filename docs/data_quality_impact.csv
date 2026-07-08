@@ -1,0 +1,6 @@
+flag,orders,revenue_czk,revenue_share_of_topline
+orders_up_to_1_czk,1422,1422.0,0.0
+zero_value_orders,1057,0.0,0.0
+cz_orders_with_eur_currency,3015,6855243.02,0.0109
+sk_orders_with_czk_currency,11,3242.0,0.0
+error_status_orders,145,284887.66,0.0005

@@ -6,7 +6,7 @@
 - Byznys je zřetelně postavený na existující bázi:
   - valid topline: `396 116` objednávek, `627,6 mil. Kč`
   - identifikovaný subset: `395 341` objednávek, `626,0 mil. Kč`
-  - zákazníci s `2+` pozorovanými objednávkami tvoří `71,2 %` identifikované báze a nesou `88,6 %` identifikovaných tržeb
+  - zákazníci s `2+` pozorovanými objednávkami tvoří `71,2 %` identifikované báze a nesou `97,3 %` identifikovaných tržeb
 - Krátkodobý problém: `YTD 2026` proti stejnému časovému oknu `2025` je `-16,9 %` objednávek a `-9,8 %` tržeb.
 - Krátkodobý cíl na 90 dní:
   - zvednout observed `1→2 do 90 dní` nad dnešních `42,7 %`

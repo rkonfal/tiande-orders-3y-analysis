@@ -1,0 +1,6 @@
+segment,customers,segment_revenue_czk,avg_aov_czk,avg_recency_days,expected_conversion,estimated_incremental_revenue_czk,priority
+1x_91d_plus,14284,15441583.99,1081.04,597.0,0.1,1544158.4,P1
+1x_46_90d,507,674217.6,1329.82,68.8,0.15,101132.64,P1
+repeat_2_4_lapse_46_90d,692,3084307.28,1510.35,67.6,0.12,125419.5,P1
+vip_dormant,1140,49212167.02,2237.51,120.0,0.1,255076.68,P1
+high_aov_low_frequency,458,2548083.6,3210.65,85.6,0.15,220571.39,P2

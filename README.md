@@ -15,7 +15,7 @@ This repo contains an aggregated deep-dive over TianDe warehouse order exports f
 
 ## Core findings
 
-- Customers with 2+ observed orders drive the business: 71.2 % of identified customers generated 88.6 % of identified revenue.
+- Customers with 2+ observed orders drive the business: 71.2 % of identified customers generated 97.3 % of identified revenue.
 - The largest observed opportunity is the base with a single observed order: 15,203 customers.
 - Observed speed to 2nd order within 90 days is 42.7 %; observed speed to 3rd order within 90 days from the 2nd is 52.7 %. 
 - SK monetizes materially better than CZ on AOV: 1 863.31 CZK vs 1 558.47 CZK.
@@ -23,9 +23,23 @@ This repo contains an aggregated deep-dive over TianDe warehouse order exports f
 
 ## Files
 
-- `scripts/build_analysis.py` regenerates all outputs from local source CSVs
-- `docs/index.html` is the live report for GitHub Pages
-- `docs/*.csv` and `docs/summary.json` contain aggregated exports
+- `scripts/build_analysis.py` contains the original aggregated report build
+- `scripts/build_deep_dive.py` regenerates the full deep-dive layer and publishes it to both `docs/index.html` and `docs/deep-dive.html`
+- `docs/ceo-one-pager.html` is the management readout
+- `docs/*.csv` and `docs/summary.json` contain aggregated exports and downloadable working tables
+
+## Deep-dive coverage
+
+The live report now includes:
+
+- driver decomposition for `YTD 2026 vs YTD 2025`
+- cohort retention tables for `30/60/90/180/365d`
+- segment opportunity sizing with rough revenue potential
+- customer value concentration and order-band economics
+- `CZ vs SK` diagnostics
+- RFM matrix
+- data-quality impact table
+- base/upside/downside scenario model
 
 ## Privacy
 

@@ -1,0 +1,4 @@
+scenario,first_to_second_90d,reactivation_1x_91d,cz_aov_uplift,estimated_incremental_revenue_czk
+Base,0.43,0.1,0.03,18905359.59
+Upside,0.48,0.15,0.06,37804987.5
+Downside,0.4,0.07,0.0,1358086.49
