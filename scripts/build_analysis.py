@@ -998,6 +998,7 @@ def build_report():
         <li><a href="./yearly_metrics.csv">yearly_metrics.csv</a></li>
         <li><a href="./segment_summary.csv">segment_summary.csv</a></li>
         <li><a href="./customer_order_bands.csv">customer_order_bands.csv</a></li>
+        <li><a href="./ceo-one-pager.html">CEO one-pager live</a></li>
         <li><a href="https://github.com/rkonfal/tiande-orders-3y-analysis">GitHub repository</a></li>
       </ul>
     </section>
