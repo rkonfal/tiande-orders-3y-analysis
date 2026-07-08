@@ -1177,7 +1177,7 @@ def build():
       <ul>
         <li>Vyhodnotit celé čtvrtletí: co zvedlo druhý nákup, co vrátilo staré zákazníky a co zvedlo český košík.</li>
         <li>Rozhodnout, jestli další čtvrtletí dál tlačit hlavně návrat zákazníků, nebo už znovu víc přidat do získávání nových lidí.</li>
-        <li>Udělát finální rozdělení na to, co poběží stále, a co byl jen jednorázový test.</li>
+        <li>Udělat finální rozdělení na to, co poběží stále, a co byl jen jednorázový test.</li>
       </ul>
     </section>
 
