@@ -292,6 +292,11 @@ def svg_line_chart(points, width=920, height=320, pad_x=56, pad_y=24, color="#9a
     )
 
 
+def chart(svg, compact=False):
+    css_class = "chart compact" if compact else "chart"
+    return f"<div class='{css_class}'>{svg}</div>"
+
+
 def build():
     orders, customer_keys = load_orders()
     latest_dt = max(order.dt for order in orders)
@@ -684,7 +689,7 @@ def build():
                 else:
                     cells.append(f"<td>{html.escape(str(val))}</td>")
             body_rows.append("<tr>" + "".join(cells) + "</tr>")
-        return f"<table><thead><tr>{thead}</tr></thead><tbody>{''.join(body_rows)}</tbody></table>"
+        return f"<div class='table-scroll'><table><thead><tr>{thead}</tr></thead><tbody>{''.join(body_rows)}</tbody></table></div>"
 
     cohort_display = []
     for row in cohort_rows:
@@ -1282,24 +1287,54 @@ def build():
     .meta {{ color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:10px; }}
     h1 {{ margin:0 0 10px; font-size:42px; line-height:1.05; }}
     h2 {{ margin:0 0 14px; font-size:24px; }}
+    .hero-actions {{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }}
     .grid-2 {{ display:grid; grid-template-columns:1.2fr 1fr; gap:18px; margin-top:18px; }}
     .grid-3 {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:18px; }}
     .grid-5 {{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin-top:18px; }}
     ul {{ margin:0; padding-left:20px; line-height:1.7; }}
-    table {{ width:100%; border-collapse:collapse; font-size:14px; }}
+    .chart {{ margin-top:12px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; padding-bottom:6px; }}
+    .chart svg {{ display:block; width:100%; min-width:720px; height:auto; }}
+    .chart.compact svg {{ min-width:620px; }}
+    .table-scroll {{ margin-top:12px; overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--line); border-radius:16px; }}
+    table {{ width:100%; min-width:640px; border-collapse:collapse; font-size:14px; }}
     th, td {{ padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }}
     th {{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }}
     .pill {{ display:inline-block; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--accent); font-size:13px; margin:0 8px 8px 0; }}
-    .cta {{ display:inline-block; padding:10px 14px; border-radius:999px; background:var(--accent); color:#fff; text-decoration:none; font-size:14px; margin-top:12px; }}
+    .cta {{ display:inline-flex; align-items:center; justify-content:center; padding:10px 14px; border-radius:999px; background:var(--accent); color:#fff; text-decoration:none; font-size:14px; }}
     .note {{ color:var(--muted); font-size:13px; line-height:1.6; }}
     .mini-card {{ background:var(--soft); border-radius:18px; padding:14px; }}
     .mini-card strong {{ display:block; font-size:14px; margin-bottom:4px; }}
     details {{ margin-top:12px; }}
-    summary {{ cursor:pointer; color:var(--accent); font-size:14px; }}
+    summary {{ cursor:pointer; color:var(--accent); font-size:14px; padding:6px 0; }}
     a {{ color:var(--accent); text-decoration:none; }}
     @media (max-width: 980px) {{
-      .cards, .grid-2, .grid-3, .grid-5 {{ grid-template-columns:1fr; }}
+      .cards {{ grid-template-columns:repeat(2,minmax(0,1fr)); }}
+      .grid-2, .grid-3 {{ grid-template-columns:1fr; }}
+      .grid-5 {{ grid-template-columns:repeat(2,minmax(0,1fr)); }}
       h1 {{ font-size:34px; }}
+      .wrap {{ padding:20px; }}
+      .hero, .panel, .card {{ border-radius:20px; }}
+    }}
+    @media (max-width: 720px) {{
+      .wrap {{ padding:14px; }}
+      .hero {{ padding:22px 18px; }}
+      .panel {{ padding:18px 16px; }}
+      .card {{ padding:16px; }}
+      .cards, .grid-5 {{ grid-template-columns:1fr; }}
+      .hero-actions {{ flex-direction:column; align-items:stretch; }}
+      .cta {{ width:100%; }}
+      h1 {{ font-size:28px; }}
+      h2 {{ font-size:21px; line-height:1.2; }}
+      .lede {{ font-size:16px; }}
+      .value {{ font-size:28px; }}
+      .meta, .note {{ font-size:13px; }}
+      .pill {{ font-size:12px; margin-right:6px; }}
+      .chart {{ margin-left:-4px; margin-right:-4px; padding:0 4px 6px; }}
+      .chart svg {{ width:auto; max-width:none; min-width:620px; }}
+      .chart.compact svg {{ min-width:540px; }}
+      .table-scroll {{ margin-left:-2px; margin-right:-2px; }}
+      table {{ min-width:560px; font-size:13px; }}
+      th, td {{ padding:9px 7px; }}
     }}
   </style>
 </head>
@@ -1316,9 +1351,11 @@ def build():
         <span class="pill">Česko vs Slovensko</span>
         <span class="pill">Co udělat hned</span>
       </div>
-      <a class="cta" href="./ceo-one-pager.html">Shrnutí pro vedení</a>
-      <a class="cta" href="./tyden-po-tydnu.html" style="margin-left:8px;">Plán týden po týdnu</a>
-      <a class="cta" href="https://github.com/rkonfal/tiande-orders-3y-analysis" style="margin-left:8px; background:var(--accent2);">Repo</a>
+      <div class="hero-actions">
+        <a class="cta" href="./ceo-one-pager.html">Shrnutí pro vedení</a>
+        <a class="cta" href="./tyden-po-tydnu.html">Plán týden po týdnu</a>
+        <a class="cta" href="https://github.com/rkonfal/tiande-orders-3y-analysis" style="background:var(--accent2);">Repo</a>
+      </div>
     </section>
 
     <section class="cards">
@@ -1353,7 +1390,7 @@ def build():
     <section class="panel">
       <h2>Tři roky v číslech</h2>
       <div class="note">Roční přehled: obrat i počet objednávek jdou dolů, ale AOV roste.</div>
-      <div style="margin-top:12px;">{yearly_chart}</div>
+      {chart(yearly_chart)}
       <details><summary>Ukázat tabulku</summary>{table(yearly_display, ["year","revenue_czk","orders","customers","aov_czk","revenue_yoy","orders_yoy","customers_yoy"], {
         "year":"Rok",
         "revenue_czk":"Tržby",
@@ -1370,7 +1407,7 @@ def build():
       <div class="panel">
         <h2>Měsíční tržby za 30 měsíců</h2>
         <div class="note">Běžné měsíce jsou světle, listopady zvýrazněné jako `Black Friday`, prosince zeleně.</div>
-        <div style="margin-top:12px;">{monthly_chart}</div>
+        {chart(monthly_chart)}
         <details><summary>Ukázat tabulku po měsících</summary>{table(monthly_30_display, ["month","month_type","revenue_czk","orders","customers","aov_czk"], {
           "month":"Měsíc",
           "month_type":"Typ",
@@ -1397,7 +1434,7 @@ def build():
       <div class="grid-2">
         <div>
           <div class="note">Nejdůležitější je pravý kraj: zákazníci s vysokým počtem objednávek nesou většinu tržeb.</div>
-          <div style="margin-top:12px;">{segment_chart}</div>
+          {chart(segment_chart, compact=True)}
           <details><summary>Ukázat tabulku segmentů</summary>{table(pdf_segment_display, ["band","customers","revenue_czk","revenue_share"], {
             "band":"Objednávky na zákazníka",
             "customers":"Zákazníci",
@@ -1422,7 +1459,7 @@ def build():
     <section class="grid-2">
       <div class="panel">
         <h2>Akvizice po kvartálech</h2>
-        <div style="margin-top:12px;">{quarterly_chart}</div>
+        {chart(quarterly_chart)}
         <details><summary>Ukázat kvartální tabulku</summary>{table(quarterly_display, ["quarter","new_customers","return_90d"], {
           "quarter":"Kvartál 1. nákupu",
           "new_customers":"Noví zákazníci",
@@ -1431,7 +1468,7 @@ def build():
       </div>
       <div class="panel">
         <h2>Rychlost návratu k 2. nákupu</h2>
-        <div style="margin-top:12px;">{second_purchase_chart}</div>
+        {chart(second_purchase_chart, compact=True)}
         <details><summary>Ukázat návratová okna</summary>{table(second_purchase_display, ["window","customers","share"], {
           "window":"Nákupní okno",
           "customers":"Zákazníci",
@@ -1444,7 +1481,7 @@ def build():
     <section class="grid-2">
       <div class="panel">
         <h2>Doprava zdarma</h2>
-        <div style="margin-top:12px;">{free_shipping_chart}</div>
+        {chart(free_shipping_chart, compact=True)}
         <details><summary>Ukázat detail</summary>{table(free_shipping_display, ["metric","value","share"], {
           "metric":"Metrika",
           "value":"Hodnota",
@@ -1454,8 +1491,8 @@ def build():
       <div class="panel">
         <h2>Jak roste zákazník</h2>
         <div class="note">Čím víc nákupů za sebou, tím větší košík i vyšší AOV.</div>
-        <div style="margin-top:12px;">{progression_aov_chart}</div>
-        <div style="margin-top:12px;">{progression_items_chart}</div>
+        {chart(progression_aov_chart)}
+        {chart(progression_items_chart)}
         <details><summary>Ukázat tabulku</summary>{table(purchase_progression_display, ["purchase_label","orders","aov_czk","avg_items"], {
           "purchase_label":"Pořadí nákupu",
           "orders":"Pozorované objednávky",
@@ -1468,7 +1505,7 @@ def build():
     <section class="grid-2">
       <div class="panel">
         <h2>Nákupní chování podle dnů</h2>
-        <div style="margin-top:12px;">{weekday_chart}</div>
+        {chart(weekday_chart, compact=True)}
         <details><summary>Ukázat tabulku</summary>{table(weekday_display, ["weekday","orders","share"], {
           "weekday":"Den",
           "orders":"Objednávky",
@@ -1478,7 +1515,7 @@ def build():
       </div>
       <div class="panel">
         <h2>Nákupní chování podle hodin</h2>
-        <div style="margin-top:12px;">{hourly_chart}</div>
+        {chart(hourly_chart)}
         <details><summary>Ukázat tabulku</summary>{table(hourly_display, ["hour","orders","share"], {
           "hour":"Hodina",
           "orders":"Objednávky",
@@ -1574,7 +1611,7 @@ def build():
     <section class="panel">
       <h2>5. Česko vs Slovensko</h2>
       <div class="note">SK má silnější ekonomiku objednávky, CZ zase objem. To není jeden trh, ale dva různé režimy.</div>
-      <div style="margin-top:12px;">{market_chart}</div>
+      {chart(market_chart)}
       <details><summary>Ukázat tabulku CZ vs SK</summary>{table(market_display, ["market","customers","revenue_czk","orders","aov_czk","avg_items_per_order","median_customer_ltv","first_to_second_90d","seen_before_order_share"], {
         "market":"Trh",
         "customers":"Zákazníci",
@@ -1640,7 +1677,7 @@ def build():
 
     <section class="panel">
       <h2>10. Kdo má co udělat</h2>
-      <table>
+      <div class="table-scroll"><table>
         <thead>
           <tr><th>Krok</th><th>Proč</th><th>Dopad</th><th>Náročnost</th><th>Kdo</th><th>Metrika</th></tr>
         </thead>
@@ -1651,7 +1688,7 @@ def build():
           <tr><td>Zvláštní péče o nejlepší zákazníky</td><td>ochrana nejhodnotnější části obratu</td><td>Střední až vysoký</td><td>Střední</td><td>CRM</td><td>udržení a obrat nejlepších zákazníků</td></tr>
           <tr><td>Oddělit komunikaci pro Česko a Slovensko</td><td>Slovensko má jinou ekonomiku objednávky</td><td>Střední</td><td>Nízká</td><td>CRM / reklama</td><td>rozdíl mezi Českem a Slovenskem</td></tr>
         </tbody>
-      </table>
+      </table></div>
     </section>
 
     <section class="panel">
@@ -1727,12 +1764,27 @@ def build():
     .meta, .note { color: var(--muted); font-size: 14px; line-height: 1.6; }
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
     ul { margin: 0; padding-left: 20px; line-height: 1.7; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .table-scroll { margin-top: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: 16px; }
+    table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px; }
     th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
     th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
     .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--accent); font-size:13px; margin:0 8px 8px 0; }
     a { color: var(--accent); text-decoration:none; }
-    @media (max-width: 980px) { .grid-2 { grid-template-columns:1fr; } h1 { font-size: 34px; } }
+    @media (max-width: 980px) {
+      .grid-2 { grid-template-columns:1fr; }
+      h1 { font-size: 34px; }
+      .wrap { padding: 20px; }
+    }
+    @media (max-width: 720px) {
+      .wrap { padding: 14px; }
+      .hero, .panel, .week { padding: 18px 16px; border-radius: 20px; }
+      h1 { font-size: 28px; }
+      h2 { font-size: 21px; line-height: 1.2; }
+      .meta, .note { font-size: 13px; }
+      .table-scroll { margin-left: -2px; margin-right: -2px; }
+      table { min-width: 540px; font-size: 13px; }
+      th, td { padding: 9px 7px; }
+    }
   </style>
 </head>
 <body>
@@ -1831,14 +1883,14 @@ def build():
 
     <section class="panel">
       <h2>Rytmus řízení</h2>
-      <table>
+      <div class="table-scroll"><table>
         <thead><tr><th>Kdy</th><th>Co udělat</th></tr></thead>
         <tbody>
           <tr><td>1x týdně</td><td>Zkontrolovat druhý nákup, návrat jednorázových zákazníků, český košík a aktivitu nejlepších zákazníků.</td></tr>
           <tr><td>1x za 14 dní</td><td>Vyhodnotit nabídky: set, dárek od určité částky, doprava zdarma, návrat přes bestseller.</td></tr>
           <tr><td>1x měsíčně</td><td>Porovnat Česko a Slovensko a rozhodnout, která skupina slábne a kde je potřeba přitlačit.</td></tr>
         </tbody>
-      </table>
+      </table></div>
     </section>
   </div>
 </body>

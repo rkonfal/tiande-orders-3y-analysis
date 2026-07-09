@@ -38,12 +38,27 @@
     .meta, .note { color: var(--muted); font-size: 14px; line-height: 1.6; }
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
     ul { margin: 0; padding-left: 20px; line-height: 1.7; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .table-scroll { margin-top: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: 16px; }
+    table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px; }
     th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
     th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
     .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--accent); font-size:13px; margin:0 8px 8px 0; }
     a { color: var(--accent); text-decoration:none; }
-    @media (max-width: 980px) { .grid-2 { grid-template-columns:1fr; } h1 { font-size: 34px; } }
+    @media (max-width: 980px) {
+      .grid-2 { grid-template-columns:1fr; }
+      h1 { font-size: 34px; }
+      .wrap { padding: 20px; }
+    }
+    @media (max-width: 720px) {
+      .wrap { padding: 14px; }
+      .hero, .panel, .week { padding: 18px 16px; border-radius: 20px; }
+      h1 { font-size: 28px; }
+      h2 { font-size: 21px; line-height: 1.2; }
+      .meta, .note { font-size: 13px; }
+      .table-scroll { margin-left: -2px; margin-right: -2px; }
+      table { min-width: 540px; font-size: 13px; }
+      th, td { padding: 9px 7px; }
+    }
   </style>
 </head>
 <body>
@@ -142,14 +157,14 @@
 
     <section class="panel">
       <h2>Rytmus řízení</h2>
-      <table>
+      <div class="table-scroll"><table>
         <thead><tr><th>Kdy</th><th>Co udělat</th></tr></thead>
         <tbody>
           <tr><td>1x týdně</td><td>Zkontrolovat druhý nákup, návrat jednorázových zákazníků, český košík a aktivitu nejlepších zákazníků.</td></tr>
           <tr><td>1x za 14 dní</td><td>Vyhodnotit nabídky: set, dárek od určité částky, doprava zdarma, návrat přes bestseller.</td></tr>
           <tr><td>1x měsíčně</td><td>Porovnat Česko a Slovensko a rozhodnout, která skupina slábne a kde je potřeba přitlačit.</td></tr>
         </tbody>
-      </table>
+      </table></div>
     </section>
   </div>
 </body>
