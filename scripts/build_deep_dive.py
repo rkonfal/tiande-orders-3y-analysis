@@ -144,6 +144,45 @@ def load_orders():
     return orders, customer_keys
 
 
+def svg_bar_chart(points, width=920, height=320, pad_x=56, pad_y=24, label_step=1):
+    if not points:
+        return "<svg viewBox='0 0 920 320'></svg>"
+    values = [point["value"] for point in points]
+    max_value = max(values) or 1
+    plot_w = width - pad_x * 2
+    plot_h = height - pad_y * 2
+    bar_w = plot_w / max(1, len(points))
+    y_ticks = []
+    for i in range(5):
+        ratio = i / 4
+        val = max_value - ratio * max_value
+        y = pad_y + plot_h * ratio
+        y_ticks.append(
+            f"<g><line x1='{pad_x}' y1='{y:.2f}' x2='{width - pad_x}' y2='{y:.2f}' stroke='#e2e8f0'/>"
+            f"<text x='8' y='{y + 4:.2f}' font-size='12' fill='#64748b'>{html.escape(fmt_money(val))}</text></g>"
+        )
+    bars = []
+    for idx, point in enumerate(points):
+        x = pad_x + idx * bar_w + 2
+        h = (point["value"] / max_value) * plot_h if max_value else 0
+        y = pad_y + plot_h - h
+        color = point.get("color") or "#9a3412"
+        bars.append(
+            f"<rect x='{x:.2f}' y='{y:.2f}' width='{max(2, bar_w - 4):.2f}' height='{h:.2f}' rx='3' fill='{color}'></rect>"
+        )
+        if idx % label_step == 0:
+            bars.append(
+                f"<text x='{x + (bar_w - 4) / 2:.2f}' y='{height - 6}' text-anchor='middle' font-size='11' fill='#64748b'>{html.escape(point['label'])}</text>"
+            )
+    return (
+        f"<svg viewBox='0 0 {width} {height}' role='img' aria-label='chart'>"
+        f"{''.join(y_ticks)}"
+        f"{''.join(bars)}"
+        f"<line x1='{pad_x}' y1='{height - pad_y}' x2='{width - pad_x}' y2='{height - pad_y}' stroke='#cbd5e1'/>"
+        "</svg>"
+    )
+
+
 def build():
     orders, customer_keys = load_orders()
     latest_dt = max(order.dt for order in orders)
@@ -662,6 +701,373 @@ def build():
         for row in yoy_focus
     ]
 
+    yearly_rollup = defaultdict(lambda: {"year": "", "revenue_czk": 0.0, "orders": 0, "customers": set()})
+    monthly_rollup = defaultdict(lambda: {"month": "", "revenue_czk": 0.0, "orders": 0, "customers": set()})
+    for order in valid_orders:
+        year = order.dt.strftime("%Y")
+        month = order.dt.strftime("%Y-%m")
+        yearly_rollup[year]["year"] = year
+        yearly_rollup[year]["revenue_czk"] += order.total_czk
+        yearly_rollup[year]["orders"] += 1
+        monthly_rollup[month]["month"] = month
+        monthly_rollup[month]["revenue_czk"] += order.total_czk
+        monthly_rollup[month]["orders"] += 1
+        customer_key = customer_keys.get(order.order_id, "")
+        if customer_key:
+            yearly_rollup[year]["customers"].add(customer_key)
+            monthly_rollup[month]["customers"].add(customer_key)
+
+    yearly_rows = []
+    prev_year = None
+    for year in sorted(yearly_rollup):
+        row = yearly_rollup[year]
+        customers_count = len(row["customers"])
+        current = {
+            "year": year,
+            "revenue_czk": round(row["revenue_czk"], 2),
+            "orders": row["orders"],
+            "customers": customers_count,
+            "aov_czk": round(pct(row["revenue_czk"], row["orders"]), 2),
+            "revenue_yoy": None,
+            "orders_yoy": None,
+            "customers_yoy": None,
+        }
+        if prev_year:
+            current["revenue_yoy"] = round(pct(current["revenue_czk"] - prev_year["revenue_czk"], prev_year["revenue_czk"]), 4)
+            current["orders_yoy"] = round(pct(current["orders"] - prev_year["orders"], prev_year["orders"]), 4)
+            current["customers_yoy"] = round(pct(current["customers"] - prev_year["customers"], prev_year["customers"]), 4)
+        yearly_rows.append(current)
+        prev_year = current
+
+    monthly_30_rows = []
+    month_points = []
+    for month in sorted(monthly_rollup)[:30]:
+        row = monthly_rollup[month]
+        month_type = "Běžný"
+        color = "#c08457"
+        if month.endswith("-11"):
+            month_type = "Black Friday"
+            color = "#9a3412"
+        elif month.endswith("-12"):
+            month_type = "Prosinec"
+            color = "#0f766e"
+        monthly_30_rows.append(
+            {
+                "month": month,
+                "month_type": month_type,
+                "revenue_czk": round(row["revenue_czk"], 2),
+                "orders": row["orders"],
+                "customers": len(row["customers"]),
+                "aov_czk": round(pct(row["revenue_czk"], row["orders"]), 2),
+            }
+        )
+        month_points.append({"label": month[2:], "value": row["revenue_czk"], "color": color})
+
+    bf_pattern_rows = []
+    for year in ["2024", "2025"]:
+        regular = [row["revenue_czk"] for row in monthly_30_rows if row["month"].startswith(year) and row["month_type"] == "Běžný"]
+        nov = next((row["revenue_czk"] for row in monthly_30_rows if row["month"] == f"{year}-11"), None)
+        dec = next((row["revenue_czk"] for row in monthly_30_rows if row["month"] == f"{year}-12"), None)
+        if not regular or nov is None or dec is None:
+            continue
+        avg_regular = sum(regular) / len(regular)
+        bf_pattern_rows.append(
+            {
+                "year": year,
+                "regular_avg_revenue_czk": round(avg_regular, 2),
+                "november_delta": round(pct(nov - avg_regular, avg_regular), 4),
+                "december_delta": round(pct(dec - avg_regular, avg_regular), 4),
+            }
+        )
+
+    pdf_band_summary = defaultdict(lambda: {"band": "", "customers": 0, "revenue_czk": 0.0})
+    for stats in customer_stats.values():
+        if stats["orders"] == 1:
+            band = "1"
+        elif stats["orders"] <= 5:
+            band = "2-5"
+        elif stats["orders"] <= 12:
+            band = "6-12"
+        else:
+            band = "13+"
+        target = pdf_band_summary[band]
+        target["band"] = band
+        target["customers"] += 1
+        target["revenue_czk"] += stats["revenue_czk"]
+    pdf_segment_rows = []
+    for band in ["1", "2-5", "6-12", "13+"]:
+        row = pdf_band_summary[band]
+        pdf_segment_rows.append(
+            {
+                "band": band,
+                "customers": row["customers"],
+                "revenue_czk": round(row["revenue_czk"], 2),
+                "revenue_share": round(pct(row["revenue_czk"], total_identified_revenue), 4),
+            }
+        )
+
+    core_customers = [stats for stats in customer_stats.values() if stats["orders"] >= 13]
+    observed_years = max(1.0, (latest_dt - orders[0].dt).days / 365.25)
+    core_activity_rows = [
+        {
+            "segment": "13+ objednávek",
+            "customers": len(core_customers),
+            "active_90d_share": round(pct(sum(1 for stats in core_customers if stats["recency_days"] <= 90), len(core_customers)), 4) if core_customers else 0.0,
+            "dormant_share": round(pct(sum(1 for stats in core_customers if stats["recency_days"] > 90), len(core_customers)), 4) if core_customers else 0.0,
+            "avg_annual_spend_czk": round(pct(sum(stats["revenue_czk"] for stats in core_customers), len(core_customers)) / observed_years, 2) if core_customers else 0.0,
+        }
+    ]
+
+    quarterly_rollup = defaultdict(lambda: {"quarter": "", "new_customers": 0, "eligible_90": 0, "returned_90": 0})
+    for customer_key, stats in customer_stats.items():
+        quarter = f"{stats['first_dt'].year}-Q{((stats['first_dt'].month - 1) // 3) + 1}"
+        quarterly_rollup[quarter]["quarter"] = quarter
+        quarterly_rollup[quarter]["new_customers"] += 1
+        if stats["first_dt"] <= latest_dt - timedelta(days=90):
+            quarterly_rollup[quarter]["eligible_90"] += 1
+            customer_orders = customers[customer_key]
+            if len(customer_orders) >= 2 and (customer_orders[1].dt - customer_orders[0].dt).days <= 90:
+                quarterly_rollup[quarter]["returned_90"] += 1
+    quarterly_rows = []
+    for quarter in sorted(quarterly_rollup):
+        row = quarterly_rollup[quarter]
+        quarterly_rows.append(
+            {
+                "quarter": quarter,
+                "new_customers": row["new_customers"],
+                "return_90d": round(pct(row["returned_90"], row["eligible_90"]), 4) if row["eligible_90"] else None,
+            }
+        )
+
+    eligible_for_return = 0
+    returned_gaps = []
+    window_counts = {"do_30": 0, "31_90": 0, "90_plus": 0, "bez_navratu_do_90": 0}
+    for customer_key, stats in customer_stats.items():
+        if stats["first_dt"] > latest_dt - timedelta(days=90):
+            continue
+        eligible_for_return += 1
+        customer_orders = customers[customer_key]
+        if len(customer_orders) < 2:
+            window_counts["bez_navratu_do_90"] += 1
+            continue
+        gap = (customer_orders[1].dt - customer_orders[0].dt).days
+        returned_gaps.append(gap)
+        if gap <= 30:
+            window_counts["do_30"] += 1
+        elif gap <= 90:
+            window_counts["31_90"] += 1
+        else:
+            window_counts["90_plus"] += 1
+            window_counts["bez_navratu_do_90"] += 1
+    second_purchase_rows = []
+    for label, key in [
+        ("do 30 dní", "do_30"),
+        ("31–90 dní", "31_90"),
+        ("90+ dní", "90_plus"),
+        ("bez návratu do 90 dní", "bez_navratu_do_90"),
+    ]:
+        second_purchase_rows.append(
+            {
+                "window": label,
+                "customers": window_counts[key],
+                "share": round(pct(window_counts[key], eligible_for_return), 4) if eligible_for_return else 0.0,
+            }
+        )
+    second_purchase_median = median(returned_gaps) if returned_gaps else 0
+
+    free_shipping_threshold = 1600
+    under_threshold_orders = [order for order in valid_orders if order.total_czk < free_shipping_threshold]
+    under_threshold_gaps = [free_shipping_threshold - order.total_czk for order in under_threshold_orders]
+    free_shipping_rows = [
+        {
+            "metric": "Objednávky pod 1 600 Kč",
+            "value": len(under_threshold_orders),
+            "share": round(pct(len(under_threshold_orders), len(valid_orders)), 4),
+        },
+        {
+            "metric": "Mediánová mezera do 1 600 Kč",
+            "value": round(median(under_threshold_gaps), 2) if under_threshold_gaps else 0.0,
+            "share": None,
+        },
+        {
+            "metric": "Objednávky v pásmu 1 400–1 600 Kč",
+            "value": sum(1 for order in valid_orders if 1400 <= order.total_czk < 1600),
+            "share": round(pct(sum(1 for order in valid_orders if 1400 <= order.total_czk < 1600), len(valid_orders)), 4),
+        },
+    ]
+
+    progression_rollup = defaultdict(lambda: {"purchase_label": "", "orders": 0, "revenue_czk": 0.0, "items_count": 0})
+    for customer_orders in customers.values():
+        for idx, order in enumerate(customer_orders, start=1):
+            if idx <= 10:
+                label = str(idx)
+            elif idx <= 15:
+                label = "11-15"
+            elif idx <= 19:
+                label = "16-19"
+            else:
+                label = "20+"
+            target = progression_rollup[label]
+            target["purchase_label"] = label
+            target["orders"] += 1
+            target["revenue_czk"] += order.total_czk
+            target["items_count"] += order.items_count
+    purchase_progression_rows = []
+    for label in [str(i) for i in range(1, 11)] + ["11-15", "16-19", "20+"]:
+        row = progression_rollup[label]
+        purchase_progression_rows.append(
+            {
+                "purchase_label": label,
+                "orders": row["orders"],
+                "aov_czk": round(pct(row["revenue_czk"], row["orders"]), 2) if row["orders"] else 0.0,
+                "avg_items": round(pct(row["items_count"], row["orders"]), 2) if row["orders"] else 0.0,
+            }
+        )
+
+    weekday_names = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"]
+    weekday_counts = [0] * 7
+    hour_counts = [0] * 24
+    for order in valid_orders:
+        weekday_counts[order.dt.weekday()] += 1
+        hour_counts[order.dt.hour] += 1
+    weekday_rows = []
+    for idx, name in enumerate(weekday_names):
+        weekday_rows.append(
+            {
+                "weekday": name,
+                "orders": weekday_counts[idx],
+                "share": round(pct(weekday_counts[idx], len(valid_orders)), 4),
+            }
+        )
+    hourly_rows = []
+    for hour in range(24):
+        hourly_rows.append(
+            {
+                "hour": f"{hour:02d}:00",
+                "orders": hour_counts[hour],
+                "share": round(pct(hour_counts[hour], len(valid_orders)), 4),
+            }
+        )
+    strongest_weekday = max(weekday_rows, key=lambda row: row["orders"])
+    weakest_weekday = min(weekday_rows, key=lambda row: row["orders"])
+    peak_hour = max(hourly_rows, key=lambda row: row["orders"])
+    evening_share = round(pct(sum(hour_counts[hour] for hour in [18, 19, 20, 21]), len(valid_orders)), 4)
+
+    write_csv(DOCS_DIR / "yearly_metrics.csv", yearly_rows, list(yearly_rows[0].keys()))
+    write_csv(DOCS_DIR / "monthly_metrics.csv", monthly_30_rows, list(monthly_30_rows[0].keys()))
+    write_csv(DOCS_DIR / "bf_pattern.csv", bf_pattern_rows, list(bf_pattern_rows[0].keys()))
+    write_csv(DOCS_DIR / "customer_segment_structure.csv", pdf_segment_rows, list(pdf_segment_rows[0].keys()))
+    write_csv(DOCS_DIR / "core_customer_network.csv", core_activity_rows, list(core_activity_rows[0].keys()))
+    write_csv(DOCS_DIR / "quarterly_acquisition_retention.csv", quarterly_rows, list(quarterly_rows[0].keys()))
+    write_csv(DOCS_DIR / "second_purchase_windows.csv", second_purchase_rows, list(second_purchase_rows[0].keys()))
+    write_csv(DOCS_DIR / "free_shipping_gap.csv", free_shipping_rows, list(free_shipping_rows[0].keys()))
+    write_csv(DOCS_DIR / "purchase_progression.csv", purchase_progression_rows, list(purchase_progression_rows[0].keys()))
+    write_csv(DOCS_DIR / "weekday_behavior.csv", weekday_rows, list(weekday_rows[0].keys()))
+    write_csv(DOCS_DIR / "hourly_behavior.csv", hourly_rows, list(hourly_rows[0].keys()))
+
+    yearly_display = [
+        {
+            "year": row["year"],
+            "revenue_czk": f"{fmt_money(row['revenue_czk'])} Kč",
+            "orders": fmt_int(row["orders"]),
+            "customers": fmt_int(row["customers"]),
+            "aov_czk": f"{fmt_money2(row['aov_czk'])} Kč",
+            "revenue_yoy": fmt_pct(row["revenue_yoy"]) if row["revenue_yoy"] is not None else "—",
+            "orders_yoy": fmt_pct(row["orders_yoy"]) if row["orders_yoy"] is not None else "—",
+            "customers_yoy": fmt_pct(row["customers_yoy"]) if row["customers_yoy"] is not None else "—",
+        }
+        for row in yearly_rows
+    ]
+    monthly_30_display = [
+        {
+            "month": row["month"],
+            "month_type": row["month_type"],
+            "revenue_czk": f"{fmt_money(row['revenue_czk'])} Kč",
+            "orders": fmt_int(row["orders"]),
+            "customers": fmt_int(row["customers"]),
+            "aov_czk": f"{fmt_money2(row['aov_czk'])} Kč",
+        }
+        for row in monthly_30_rows
+    ]
+    bf_pattern_display = [
+        {
+            "year": row["year"],
+            "regular_avg_revenue_czk": f"{fmt_money(row['regular_avg_revenue_czk'])} Kč",
+            "november_delta": fmt_pct(row["november_delta"]),
+            "december_delta": fmt_pct(row["december_delta"]),
+        }
+        for row in bf_pattern_rows
+    ]
+    pdf_segment_display = [
+        {
+            "band": row["band"],
+            "customers": fmt_int(row["customers"]),
+            "revenue_czk": f"{fmt_money(row['revenue_czk'])} Kč",
+            "revenue_share": fmt_pct(row["revenue_share"]),
+        }
+        for row in pdf_segment_rows
+    ]
+    core_activity_display = [
+        {
+            "segment": row["segment"],
+            "customers": fmt_int(row["customers"]),
+            "active_90d_share": fmt_pct(row["active_90d_share"]),
+            "dormant_share": fmt_pct(row["dormant_share"]),
+            "avg_annual_spend_czk": f"{fmt_money2(row['avg_annual_spend_czk'])} Kč",
+        }
+        for row in core_activity_rows
+    ]
+    quarterly_display = [
+        {
+            "quarter": row["quarter"],
+            "new_customers": fmt_int(row["new_customers"]),
+            "return_90d": fmt_pct(row["return_90d"]) if row["return_90d"] is not None else "—",
+        }
+        for row in quarterly_rows
+    ]
+    second_purchase_display = [
+        {
+            "window": row["window"],
+            "customers": fmt_int(row["customers"]),
+            "share": fmt_pct(row["share"]),
+        }
+        for row in second_purchase_rows
+    ]
+    free_shipping_display = [
+        {
+            "metric": row["metric"],
+            "value": f"{fmt_money2(row['value'])} Kč" if "mezera" in row["metric"].lower() else fmt_int(int(row["value"])),
+            "share": fmt_pct(row["share"]) if row["share"] is not None else "—",
+        }
+        for row in free_shipping_rows
+    ]
+    purchase_progression_display = [
+        {
+            "purchase_label": row["purchase_label"],
+            "orders": fmt_int(row["orders"]),
+            "aov_czk": f"{fmt_money2(row['aov_czk'])} Kč",
+            "avg_items": f"{row['avg_items']:.2f}",
+        }
+        for row in purchase_progression_rows
+    ]
+    weekday_display = [
+        {
+            "weekday": row["weekday"],
+            "orders": fmt_int(row["orders"]),
+            "share": fmt_pct(row["share"]),
+        }
+        for row in weekday_rows
+    ]
+    hourly_display = [
+        {
+            "hour": row["hour"],
+            "orders": fmt_int(row["orders"]),
+            "share": fmt_pct(row["share"]),
+        }
+        for row in hourly_rows
+    ]
+    monthly_chart = svg_bar_chart(month_points, label_step=2)
+
     html_page = f"""<!doctype html>
 <html lang="cs">
 <head>
@@ -855,6 +1261,123 @@ def build():
     </section>
 
     <section class="panel">
+      <h2>Tři roky v číslech</h2>
+      {table(yearly_display, ["year","revenue_czk","orders","customers","aov_czk","revenue_yoy","orders_yoy","customers_yoy"], {
+        "year":"Rok",
+        "revenue_czk":"Tržby",
+        "orders":"Objednávky",
+        "customers":"Unikátní zákazníci",
+        "aov_czk":"AOV",
+        "revenue_yoy":"Tržby meziročně",
+        "orders_yoy":"Objednávky meziročně",
+        "customers_yoy":"Zákazníci meziročně"
+      })}
+      <div class="note" style="margin-top:10px;">H1 2026 proti stejnému časovému oknu H1 2025 je rozpadnuté níž v tabulce propadu. Tady je čistý roční rámec nad celou 3letou bází.</div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h2>Měsíční tržby za 30 měsíců</h2>
+        <div class="note">Běžné měsíce jsou světle, listopady jsou zvýrazněné jako `Black Friday` měsíc a prosince zeleně.</div>
+        <div style="margin-top:12px;">{monthly_chart}</div>
+      </div>
+      <div class="panel">
+        <h2>BF pattern</h2>
+        {table(bf_pattern_display, ["year","regular_avg_revenue_czk","november_delta","december_delta"], {
+          "year":"Rok",
+          "regular_avg_revenue_czk":"Průměr běžného měsíce",
+          "november_delta":"Listopad vs běžný měsíc",
+          "december_delta":"Prosinec vs běžný měsíc"
+        })}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Struktura zákaznické základny</h2>
+      <div class="grid-2">
+        <div>
+          {table(pdf_segment_display, ["band","customers","revenue_czk","revenue_share"], {
+            "band":"Objednávky na zákazníka",
+            "customers":"Zákazníci",
+            "revenue_czk":"Tržby",
+            "revenue_share":"Podíl na tržbách"
+          })}
+        </div>
+        <div>
+          {table(core_activity_display, ["segment","customers","active_90d_share","dormant_share","avg_annual_spend_czk"], {
+            "segment":"Core síť",
+            "customers":"Zákazníci",
+            "active_90d_share":"Aktivní za 90 dní",
+            "dormant_share":"Dormantní podíl",
+            "avg_annual_spend_czk":"Průměrná roční útrata"
+          })}
+          <div class="note" style="margin-top:10px;">Průměrná roční útrata je annualizovaná přes celé pozorované okno `2024-01` až `2026-06`.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h2>Akvizice po kvartálech</h2>
+        {table(quarterly_display, ["quarter","new_customers","return_90d"], {
+          "quarter":"Kvartál 1. nákupu",
+          "new_customers":"Noví zákazníci",
+          "return_90d":"Návrat do 90 dní"
+        })}
+      </div>
+      <div class="panel">
+        <h2>Rychlost návratu k 2. nákupu</h2>
+        {table(second_purchase_display, ["window","customers","share"], {
+          "window":"Nákupní okno",
+          "customers":"Zákazníci",
+          "share":"Podíl"
+        })}
+        <div class="note" style="margin-top:10px;">Medián do 2. nákupu je `{second_purchase_median}` dní. To je čisté order-level číslo nad zákazníky, kde už se druhý nákup opravdu objevil.</div>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h2>Doprava zdarma</h2>
+        {table(free_shipping_display, ["metric","value","share"], {
+          "metric":"Metrika",
+          "value":"Hodnota",
+          "share":"Podíl objednávek"
+        })}
+      </div>
+      <div class="panel">
+        <h2>Jak roste zákazník</h2>
+        {table(purchase_progression_display, ["purchase_label","orders","aov_czk","avg_items"], {
+          "purchase_label":"Pořadí nákupu",
+          "orders":"Pozorované objednávky",
+          "aov_czk":"Průměrná objednávka",
+          "avg_items":"Prům. počet položek"
+        })}
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h2>Nákupní chování podle dnů</h2>
+        {table(weekday_display, ["weekday","orders","share"], {
+          "weekday":"Den",
+          "orders":"Objednávky",
+          "share":"Podíl"
+        })}
+        <div class="note" style="margin-top:10px;">Nejsilnější den je `{strongest_weekday['weekday']}` ({fmt_pct(strongest_weekday['share'])}), nejslabší je `{weakest_weekday['weekday']}` ({fmt_pct(weakest_weekday['share'])}).</div>
+      </div>
+      <div class="panel">
+        <h2>Nákupní chování podle hodin</h2>
+        {table(hourly_display, ["hour","orders","share"], {
+          "hour":"Hodina",
+          "orders":"Objednávky",
+          "share":"Podíl"
+        })}
+        <div class="note" style="margin-top:10px;">Peak hodina je `{peak_hour['hour']}`. Slot `18:00–21:59` dělá `{fmt_pct(evening_share)}` všech objednávek.</div>
+      </div>
+    </section>
+
+    <section class="panel">
       <h2>1. Proč je rok 2026 slabší</h2>
       <div class="note">Tržby se tady rozpadají na tři hlavní části: počet aktivních zákazníků, kolikrát nakoupí a jak velkou mají objednávku. Srovnání je ve stejném časovém okně `1. 1. – 29. 6. 15:44` v `2025` a `2026`.</div>
       {table(driver_display, ["market","active_customers_2025","active_customers_2026","active_customers_delta","orders_per_customer_2025","orders_per_customer_2026","orders_per_customer_delta","aov_2025","aov_2026","aov_delta","revenue_2025","revenue_2026","revenue_delta"], {
@@ -1021,6 +1544,17 @@ def build():
     <section class="panel">
       <h2>Downloads</h2>
       <ul>
+        <li><a href="./yearly_metrics.csv">yearly_metrics.csv</a></li>
+        <li><a href="./monthly_metrics.csv">monthly_metrics.csv</a></li>
+        <li><a href="./bf_pattern.csv">bf_pattern.csv</a></li>
+        <li><a href="./customer_segment_structure.csv">customer_segment_structure.csv</a></li>
+        <li><a href="./core_customer_network.csv">core_customer_network.csv</a></li>
+        <li><a href="./quarterly_acquisition_retention.csv">quarterly_acquisition_retention.csv</a></li>
+        <li><a href="./second_purchase_windows.csv">second_purchase_windows.csv</a></li>
+        <li><a href="./free_shipping_gap.csv">free_shipping_gap.csv</a></li>
+        <li><a href="./purchase_progression.csv">purchase_progression.csv</a></li>
+        <li><a href="./weekday_behavior.csv">weekday_behavior.csv</a></li>
+        <li><a href="./hourly_behavior.csv">hourly_behavior.csv</a></li>
         <li><a href="./cohort_retention.csv">cohort_retention.csv</a></li>
         <li><a href="./driver_decomposition.csv">driver_decomposition.csv</a></li>
         <li><a href="./segment_opportunities.csv">segment_opportunities.csv</a></li>
@@ -1031,6 +1565,7 @@ def build():
         <li><a href="./scenario_model.csv">scenario_model.csv</a></li>
         <li><a href="./tyden-po-tydnu.html">plán týden po týdnu</a></li>
       </ul>
+      <div class="note" style="margin-top:10px;">Produktové tabulky typu `view → purchase`, sweet spot ceny podle konkrétních SKU a přesný ceníkový audit `Kč / ks` tu záměrně nejsou vydávané za hotové. Ty chtějí item-level order lines a web/CRM eventy, ne jen order-level CSV.</div>
     </section>
   </div>
 </body>
