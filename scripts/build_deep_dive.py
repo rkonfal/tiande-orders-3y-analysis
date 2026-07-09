@@ -183,6 +183,115 @@ def svg_bar_chart(points, width=920, height=320, pad_x=56, pad_y=24, label_step=
     )
 
 
+def svg_grouped_bar_chart(groups, series, width=920, height=340, pad_x=56, pad_y=24):
+    if not groups or not series:
+        return "<svg viewBox='0 0 920 340'></svg>"
+    values = [group.get(key, 0) for group in groups for key, _, _ in series]
+    max_value = max(values) or 1
+    plot_w = width - pad_x * 2
+    plot_h = height - pad_y * 2
+    group_w = plot_w / max(1, len(groups))
+    inner_gap = 4
+    bar_w = max(8, (group_w - inner_gap * (len(series) + 1)) / max(1, len(series)))
+    y_ticks = []
+    for i in range(5):
+        ratio = i / 4
+        val = max_value - ratio * max_value
+        y = pad_y + plot_h * ratio
+        y_ticks.append(
+            f"<g><line x1='{pad_x}' y1='{y:.2f}' x2='{width - pad_x}' y2='{y:.2f}' stroke='#e2e8f0'/>"
+            f"<text x='8' y='{y + 4:.2f}' font-size='12' fill='#64748b'>{html.escape(fmt_money(val))}</text></g>"
+        )
+    bars = []
+    for idx, group in enumerate(groups):
+        base_x = pad_x + idx * group_w
+        for s_idx, (key, _, color) in enumerate(series):
+            value = group.get(key, 0)
+            h = (value / max_value) * plot_h if max_value else 0
+            x = base_x + inner_gap + s_idx * (bar_w + inner_gap)
+            y = pad_y + plot_h - h
+            bars.append(
+                f"<rect x='{x:.2f}' y='{y:.2f}' width='{bar_w:.2f}' height='{h:.2f}' rx='3' fill='{color}'></rect>"
+            )
+        bars.append(
+            f"<text x='{base_x + group_w / 2:.2f}' y='{height - 6}' text-anchor='middle' font-size='11' fill='#64748b'>{html.escape(group['label'])}</text>"
+        )
+    legend = []
+    legend_x = pad_x
+    for _, label, color in series:
+        legend.append(
+            f"<rect x='{legend_x}' y='6' width='12' height='12' rx='2' fill='{color}'></rect>"
+            f"<text x='{legend_x + 18}' y='16' font-size='12' fill='#64748b'>{html.escape(label)}</text>"
+        )
+        legend_x += max(120, len(label) * 7 + 28)
+    return (
+        f"<svg viewBox='0 0 {width} {height}' role='img' aria-label='chart'>"
+        f"{''.join(y_ticks)}{''.join(bars)}{''.join(legend)}"
+        f"<line x1='{pad_x}' y1='{height - pad_y}' x2='{width - pad_x}' y2='{height - pad_y}' stroke='#cbd5e1'/>"
+        "</svg>"
+    )
+
+
+def svg_horizontal_bar_chart(points, width=920, height=320, pad_x=180, pad_y=24):
+    if not points:
+        return "<svg viewBox='0 0 920 320'></svg>"
+    values = [point["value"] for point in points]
+    max_value = max(values) or 1
+    plot_w = width - pad_x - 24
+    row_h = (height - pad_y * 2) / max(1, len(points))
+    parts = []
+    for idx, point in enumerate(points):
+        y = pad_y + idx * row_h + 4
+        w = (point["value"] / max_value) * plot_w if max_value else 0
+        color = point.get("color") or "#9a3412"
+        parts.append(
+            f"<text x='8' y='{y + row_h / 2 + 4:.2f}' font-size='12' fill='#334155'>{html.escape(point['label'])}</text>"
+            f"<rect x='{pad_x}' y='{y:.2f}' width='{w:.2f}' height='{max(10, row_h - 10):.2f}' rx='4' fill='{color}'></rect>"
+            f"<text x='{pad_x + w + 8:.2f}' y='{y + row_h / 2 + 4:.2f}' font-size='12' fill='#64748b'>{html.escape(point.get('value_label', fmt_money(point['value'])))}</text>"
+        )
+    return f"<svg viewBox='0 0 {width} {height}' role='img' aria-label='chart'>{''.join(parts)}</svg>"
+
+
+def svg_line_chart(points, width=920, height=320, pad_x=56, pad_y=24, color="#9a3412", fill="#f6e7d2"):
+    if not points:
+        return "<svg viewBox='0 0 920 320'></svg>"
+    values = [point["value"] for point in points]
+    max_value = max(values) or 1
+    min_value = min(values)
+    span = max_value - min_value or 1
+    plot_w = width - pad_x * 2
+    plot_h = height - pad_y * 2
+    coords = []
+    for idx, point in enumerate(points):
+        x = pad_x + plot_w * idx / max(1, len(points) - 1)
+        y = pad_y + plot_h - ((point["value"] - min_value) / span) * plot_h
+        coords.append((x, y))
+    polyline = " ".join(f"{x:.2f},{y:.2f}" for x, y in coords)
+    area = f"{pad_x},{height - pad_y} " + polyline + f" {coords[-1][0]:.2f},{height - pad_y}"
+    ticks = []
+    for i in range(5):
+        ratio = i / 4
+        val = max_value - ratio * span
+        y = pad_y + plot_h * ratio
+        ticks.append(
+            f"<g><line x1='{pad_x}' y1='{y:.2f}' x2='{width - pad_x}' y2='{y:.2f}' stroke='#e2e8f0'/>"
+            f"<text x='8' y='{y + 4:.2f}' font-size='12' fill='#64748b'>{html.escape(fmt_money(val))}</text></g>"
+        )
+    labels = []
+    step = max(1, math.ceil(len(points) / 8))
+    for idx, point in enumerate(points):
+        if idx % step == 0:
+            labels.append(
+                f"<text x='{coords[idx][0]:.2f}' y='{height - 6}' text-anchor='middle' font-size='11' fill='#64748b'>{html.escape(point['label'])}</text>"
+            )
+    dots = "".join(f"<circle cx='{x:.2f}' cy='{y:.2f}' r='4' fill='{color}'></circle>" for x, y in coords)
+    return (
+        f"<svg viewBox='0 0 {width} {height}' role='img' aria-label='chart'>"
+        f"{''.join(ticks)}<polygon points='{area}' fill='{fill}' opacity='0.9'></polygon>"
+        f"<polyline points='{polyline}' fill='none' stroke='{color}' stroke-width='3'></polyline>{dots}{''.join(labels)}</svg>"
+    )
+
+
 def build():
     orders, customer_keys = load_orders()
     latest_dt = max(order.dt for order in orders)
@@ -1067,6 +1176,67 @@ def build():
         for row in hourly_rows
     ]
     monthly_chart = svg_bar_chart(month_points, label_step=2)
+    yearly_chart = svg_grouped_bar_chart(
+        [{"label": row["year"], "revenue": row["revenue_czk"], "orders": row["orders"] * 1500} for row in yearly_rows],
+        [("revenue", "Tržby", "#9a3412"), ("orders", "Objednávky x 1500", "#0f766e")],
+        height=300,
+    )
+    segment_chart = svg_horizontal_bar_chart(
+        [
+            {"label": f"{row['band']} objednávek", "value": row["revenue_share"] * 100, "value_label": fmt_pct(row["revenue_share"]), "color": color}
+            for row, color in zip(pdf_segment_rows, ["#d97706", "#c2410c", "#0f766e", "#1d4ed8"])
+        ],
+        height=260,
+    )
+    quarterly_chart = svg_grouped_bar_chart(
+        [{"label": row["quarter"][2:], "new_customers": row["new_customers"], "return_90d": (row["return_90d"] or 0) * 1000} for row in quarterly_rows],
+        [("new_customers", "Noví zákazníci", "#9a3412"), ("return_90d", "Návrat do 90 dní x 1000", "#0f766e")],
+        height=300,
+    )
+    second_purchase_chart = svg_horizontal_bar_chart(
+        [
+            {"label": row["window"], "value": row["share"] * 100, "value_label": fmt_pct(row["share"]), "color": color}
+            for row, color in zip(second_purchase_rows, ["#0f766e", "#1d4ed8", "#c2410c", "#7c2d12"])
+        ],
+        height=260,
+        pad_x=220,
+    )
+    free_shipping_chart = svg_horizontal_bar_chart(
+        [
+            {"label": "Pod 1 600 Kč", "value": free_shipping_rows[0]["share"] * 100, "value_label": fmt_pct(free_shipping_rows[0]["share"]), "color": "#9a3412"},
+            {"label": "Pásmo 1 400–1 600", "value": free_shipping_rows[2]["share"] * 100, "value_label": fmt_pct(free_shipping_rows[2]["share"]), "color": "#0f766e"},
+            {"label": "Mediánová mezera", "value": free_shipping_rows[1]["value"], "value_label": f"{fmt_money2(free_shipping_rows[1]['value'])} Kč", "color": "#1d4ed8"},
+        ],
+        height=220,
+        pad_x=220,
+    )
+    progression_aov_chart = svg_line_chart(
+        [{"label": row["purchase_label"], "value": row["aov_czk"]} for row in purchase_progression_rows],
+        color="#9a3412",
+        fill="#f6e7d2",
+    )
+    progression_items_chart = svg_line_chart(
+        [{"label": row["purchase_label"], "value": row["avg_items"]} for row in purchase_progression_rows],
+        color="#0f766e",
+        fill="#d9f3ef",
+    )
+    weekday_chart = svg_bar_chart(
+        [{"label": row["weekday"][:2], "value": row["share"] * 100, "color": "#9a3412" if row["weekday"] == strongest_weekday["weekday"] else "#c08457"} for row in weekday_rows],
+        height=240,
+    )
+    hourly_chart = svg_bar_chart(
+        [{"label": row["hour"][:2], "value": row["share"] * 100, "color": "#0f766e" if row["hour"] == peak_hour["hour"] else "#7dd3c7"} for row in hourly_rows],
+        height=240,
+        label_step=2,
+    )
+    market_chart = svg_grouped_bar_chart(
+        [
+            {"label": "CZ", "aov": market_diag["CZ"]["aov_czk"], "repeat90": market_diag["CZ"]["first_to_second_90d"] * 3000},
+            {"label": "SK", "aov": market_diag["SK"]["aov_czk"], "repeat90": market_diag["SK"]["first_to_second_90d"] * 3000},
+        ],
+        [("aov", "AOV", "#9a3412"), ("repeat90", "2. nákup do 90 dní x 3000", "#0f766e")],
+        height=260,
+    )
 
     html_page = f"""<!doctype html>
 <html lang="cs">
@@ -1108,12 +1278,13 @@ def build():
     .card {{ padding: 18px; }}
     .kicker {{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }}
     .value {{ font-size:30px; font-weight:700; }}
-    .lede {{ font-size:18px; line-height:1.6; max-width:980px; }}
+    .lede {{ font-size:18px; line-height:1.5; max-width:860px; }}
     .meta {{ color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:10px; }}
     h1 {{ margin:0 0 10px; font-size:42px; line-height:1.05; }}
     h2 {{ margin:0 0 14px; font-size:24px; }}
     .grid-2 {{ display:grid; grid-template-columns:1.2fr 1fr; gap:18px; margin-top:18px; }}
     .grid-3 {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:18px; }}
+    .grid-5 {{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin-top:18px; }}
     ul {{ margin:0; padding-left:20px; line-height:1.7; }}
     table {{ width:100%; border-collapse:collapse; font-size:14px; }}
     th, td {{ padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }}
@@ -1121,9 +1292,13 @@ def build():
     .pill {{ display:inline-block; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--accent); font-size:13px; margin:0 8px 8px 0; }}
     .cta {{ display:inline-block; padding:10px 14px; border-radius:999px; background:var(--accent); color:#fff; text-decoration:none; font-size:14px; margin-top:12px; }}
     .note {{ color:var(--muted); font-size:13px; line-height:1.6; }}
+    .mini-card {{ background:var(--soft); border-radius:18px; padding:14px; }}
+    .mini-card strong {{ display:block; font-size:14px; margin-bottom:4px; }}
+    details {{ margin-top:12px; }}
+    summary {{ cursor:pointer; color:var(--accent); font-size:14px; }}
     a {{ color:var(--accent); text-decoration:none; }}
     @media (max-width: 980px) {{
-      .cards, .grid-2, .grid-3 {{ grid-template-columns:1fr; }}
+      .cards, .grid-2, .grid-3, .grid-5 {{ grid-template-columns:1fr; }}
       h1 {{ font-size:34px; }}
     }}
   </style>
@@ -1133,7 +1308,7 @@ def build():
     <section class="hero">
       <div class="meta">Plná analýza | Pokrytí: {orders[0].dt.strftime('%d.%m.%Y %H:%M')} až {latest_dt.strftime('%d.%m.%Y %H:%M')} | Exporty: 2024 + 2025 + H1 2026 | Aktualizováno: {datetime.now().strftime('%d.%m.%Y %H:%M')}</div>
       <h1>TianDe 2024-2026: co se děje, proč se to děje a co s tím</h1>
-      <div class="lede">Tahle verze je už celá pohromadě. Ne jen krátké shrnutí. Je tu rozklad propadu roku 2026, návratnost zákazníků podle měsíců prvního nákupu, kde leží peníze, proč je Slovensko silnější než Česko a hlavně co udělat hned.</div>
+      <div class="lede">Zkrácená čtecí verze: víc grafů, méně textu. Hlavní otázky jsou tři: kde mizí obrat, jak rychle se vracejí zákazníci a kde je nejrychlejší páka na růst.</div>
       <div style="margin-top:14px;">
         <span class="pill">Kde mizí obrat</span>
         <span class="pill">Kdo se vrací a kdo ne</span>
@@ -1153,116 +1328,33 @@ def build():
       <div class="card"><div class="kicker">Typická mezera mezi objednávkami</div><div class="value">{median(all_gaps) if all_gaps else 0} dní</div></div>
     </section>
 
-    <section class="grid-2">
-      <div class="panel">
-        <h2>Co ta čísla opravdu říkají</h2>
-        <ul>
-          <li>`Rok 2026` je proti stejnému období roku `2025` opravdu slabší. Není to dojem, ale reálný pokles objednávek i tržeb.</li>
-          <li>Byznys stojí hlavně na vracejících se zákaznících. Zákazníci s `6 a více` objednávkami nesou `{fmt_pct(next(r['revenue_share'] for r in value_tier_rows if r['band']=='6+'))}` identifikovaných tržeb.</li>
-          <li>`Nejlepších 10 %` zákazníků dělá `{fmt_pct(next(r['revenue_share'] for r in concentration_rows if r['bucket']=='top_10pct'))}` tržeb. O tuto skupinu se musí pečovat zvlášť.</li>
-          <li>Typická mezera mezi objednávkami je `{median(all_gaps) if all_gaps else 0}` dní, horní čtvrtina je kolem `{sorted(all_gaps)[int((len(all_gaps)-1)*0.75)] if all_gaps else 0}` dní a horní desetina kolem `{sorted(all_gaps)[int((len(all_gaps)-1)*0.9)] if all_gaps else 0}` dní. Nejcitlivější okno pro návrat je tedy zhruba `30 až 90 dní`.</li>
-        </ul>
-      </div>
-      <div class="panel">
-        <h2>Co tady teď nově je</h2>
-        <ul>
-          <li>rozklad propadu roku 2026 na počet aktivních zákazníků, četnost nákupů a průměrnou objednávku</li>
-          <li>návratnost zákazníků podle měsíce prvního nákupu místo jednoho souhrnného čísla</li>
-          <li>přehled segmentů v penězích: kde leží největší rychlá příležitost</li>
-          <li>závislost obratu na malé skupině nejlepších zákazníků</li>
-          <li>podrobnější srovnání Česka a Slovenska</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="grid-2">
-      <div class="panel">
-        <h2>Co z toho jde říct s jistotou</h2>
-        <ul>
-          <li>Tržby ve stejném okně roku `2026` klesly proti `2025` o `10,3 %`.</li>
-          <li>Hlavní důvod není menší košík, ale menší počet aktivních nakupujících. Těch ubylo o `16,5 %`.</li>
-          <li>Pokles tržeb částečně maskuje to, že průměrná objednávka vyrostla o `8,5 %` na `1 669 Kč`.</li>
-          <li>Firma stojí na velmi úzké skupině věrných lidí. Zákazníci se `6 a více` objednávkami dělají `{fmt_pct(next(r['revenue_share'] for r in value_tier_rows if r['band']=='6+'))}` tržeb.</li>
-          <li>Slovensko je hodnotnější než Česko. Průměrná slovenská objednávka je asi o `407 Kč` vyšší než česká.</li>
-        </ul>
-      </div>
-      <div class="panel">
-        <h2>Co je silná domněnka, ale ne jistota</h2>
-        <ul>
-          <li>Je velmi pravděpodobné, že firmě nestačí přítok nových lidí. Aktivní báze padá a starší věrná skupina ji sama dlouho neutáhne.</li>
-          <li>Nemůžeme ale tvrdit jako jistý fakt kolaps akvizice jen podle „první viděné objednávky“, protože nevidíme historii před rokem `2024`.</li>
-          <li>Je pravděpodobné, že byznys stárne a žije hlavně ze staré věrné báze, ale přesné potvrzení chce starší data nebo přesnější rozpad zdrojů prvních nákupů.</li>
-        </ul>
+    <section class="panel">
+      <h2>Rychlé čtení</h2>
+      <div class="grid-5">
+        <div class="mini-card"><strong>Obrat padá hlavně přes bázi</strong>H1 2026 vs H1 2025: aktivní zákazníci `-16,5 %`, tržby `-10,3 %`.</div>
+        <div class="mini-card"><strong>Košík problém není</strong>AOV ve stejném okně vyrostlo na `1 669 Kč`.</div>
+        <div class="mini-card"><strong>Byznys táhne jádro</strong>`13+` objednávek dělá `{fmt_pct(next(r['revenue_share'] for r in pdf_segment_rows if r['band']=='13+'))}` identifikovaných tržeb.</div>
+        <div class="mini-card"><strong>Návratové okno</strong>Medián do 2. nákupu je `{second_purchase_median}` dní. Kritické okno je `30–90 dní`.</div>
+        <div class="mini-card"><strong>Česko vs Slovensko</strong>SK má vyšší AOV, CZ má větší objem. Potřebují jinou práci s košíkem i kampaněmi.</div>
       </div>
     </section>
 
     <section class="panel">
       <h2>Co udělat hned</h2>
-      <table>
-        <thead>
-          <tr><th>Krok</th><th>Proč</th><th>Co přesně udělat</th><th>Co hlídat</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>1. Dotlačit druhý nákup</td><td>Tady leží nejrychlejší růst bez další akvizice</td><td>Spustit e-mail a SMS na zákazníky 0–45 dní po prvním nákupu. Nabídnout doplnění rutiny, ne plošnou slevu.</td><td>Podíl zákazníků, kteří udělají 2. objednávku do 30 / 60 / 90 dní</td></tr>
-          <tr><td>2. Vrátit staré jednorázové zákazníky</td><td>Skupina `1x 91+ dní` je největší zásoba rychlých peněz</td><td>Udělat návratovou kampaň na bestsellery a jednoduché sety. Netlačit široký katalog, ale jasnou volbu.</td><td>Návratovost skupiny `1x 91+ dní`</td></tr>
-          <tr><td>3. Zvednout košík v Česku</td><td>Česko dělá objem, ale vydělá méně na objednávku než Slovensko</td><td>Nasadit sety, dárek od určité částky a chytřejší nabídku v košíku.</td><td>Průměrná hodnota objednávky v Česku</td></tr>
-          <tr><td>4. Chránit nejlepší zákazníky</td><td>Malá skupina lidí dělá velkou část obratu</td><td>Pro nejlepší zákazníky dát přednostní nabídky, dárky a dřívější přístup, ne obyčejnou slevovou akci.</td><td>Počet aktivních nejlepších zákazníků a jejich obrat</td></tr>
-          <tr><td>5. Oddělit Česko a Slovensko</td><td>Slovensko se chová jinak a objednávka tam vychází lépe</td><td>Vést samostatné kampaně, samostatné texty a samostatné nabídky.</td><td>Rozdíl Česko vs Slovensko v průměrné objednávce a návratovosti</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section class="grid-2">
-      <div class="panel">
-        <h2>Jak to celé uchopit</h2>
-        <ul>
-          <li>Nebrat to jako jeden report, ale jako čtyři samostatné úkoly: návrat po 1. nákupu, zrychlení dalších nákupů, zvýšení českého košíku a péče o nejlepší zákazníky.</li>
-          <li>Nedělat všechno naráz. Začít tím, co vrací peníze nejrychleji: druhý nákup, staré jednorázové zákazníky a český košík.</li>
-          <li>Každou část řídit zvlášť. Jinou nabídku dostane člověk po první objednávce, jinou dostane dlouho neaktivní zákazník a jinou nejlepší zákazník.</li>
-          <li>Česko a Slovensko neřídit jedním textem a jednou nabídkou. Každý trh potřebuje vlastní přístup.</li>
-          <li>Nehodnotit to podle pocitu, ale podle několika čísel, která se budou sledovat pořád dokola.</li>
-        </ul>
-      </div>
-      <div class="panel">
-        <h2>Jak s tím pracovat každý týden</h2>
-        <table>
-          <thead>
-            <tr><th>Rytmus</th><th>Co přesně udělat</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>1x týdně</td><td>Projít druhý nákup do 30 / 60 / 90 dní, návrat jednorázových zákazníků, český košík a počet aktivních nejlepších zákazníků.</td></tr>
-            <tr><td>1x za 14 dní</td><td>Vyhodnotit, která nabídka funguje lépe: set, dárek od určité částky, doprava zdarma nebo návrat přes bestseller.</td></tr>
-            <tr><td>1x měsíčně</td><td>Porovnat Česko a Slovensko, které skupiny sílí a které slábnou, a podle toho upravit kampaně i nabídku na e-shopu.</td></tr>
-            <tr><td>1x za čtvrtletí</td><td>Rozhodnout, jestli se víc vyplatí tlačit návrat zákazníků, nebo už znovu přidat víc peněz do získávání nových lidí.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="grid-2">
-      <div class="panel">
-        <h2>Co z toho plyne pro majitele</h2>
-        <ul>
-          <li>Firma dnes stojí na úzké skupině věrných zákazníků. To je síla i velké riziko zároveň.</li>
-          <li>Největší problém není jen pokles tržeb, ale to, že ubývá aktivních lidí a ztrátu zatím zakrývá vyšší hodnota objednávky.</li>
-          <li>V databázi leží tisíce lidí, do kterých už jednou šly peníze, ale dál se s nimi málo pracuje.</li>
-          <li>Česko dělá objem, Slovensko dělá lepší objednávku. Každý trh proto musí mít vlastní způsob práce.</li>
-        </ul>
-      </div>
-      <div class="panel">
-        <h2>Co si nechat hned dopočítat</h2>
-        <ul>
-          <li>Rozpad růstu průměrné objednávky: kolik je zdražení a kolik je opravdu větší košík.</li>
-          <li>Co přesně si koupili lidé, kteří nakoupili jednou a už se nevrátili.</li>
-          <li>Pokud existují starší data, porovnat starší e-maily a ověřit, kolik „nových“ v roce 2024 bylo ve skutečnosti starších vracejících se zákazníků.</li>
-          <li>Které první produkty nejčastěji vedou k druhé objednávce a které naopak končí slepě.</li>
-        </ul>
+      <div class="grid-5">
+        <div class="mini-card"><strong>1. Druhý nákup</strong>0–45 dní po prvním nákupu. Měřit `2. objednávku do 30/60/90 dní`.</div>
+        <div class="mini-card"><strong>2. Návrat 1x 91+</strong>Reaktivace jednorázových zákazníků přes bestsellery a jednoduché sety.</div>
+        <div class="mini-card"><strong>3. Zvednout CZ košík</strong>Sety, dárek od částky, chytřejší upsell v košíku.</div>
+        <div class="mini-card"><strong>4. Chránit top zákazníky</strong>Prioritní nabídky a péče, ne plošné slevy.</div>
+        <div class="mini-card"><strong>5. Oddělit CZ a SK</strong>Samostatné kampaně, texty i obchodní nabídka.</div>
       </div>
     </section>
 
     <section class="panel">
       <h2>Tři roky v číslech</h2>
-      {table(yearly_display, ["year","revenue_czk","orders","customers","aov_czk","revenue_yoy","orders_yoy","customers_yoy"], {
+      <div class="note">Roční přehled: obrat i počet objednávek jdou dolů, ale AOV roste.</div>
+      <div style="margin-top:12px;">{yearly_chart}</div>
+      <details><summary>Ukázat tabulku</summary>{table(yearly_display, ["year","revenue_czk","orders","customers","aov_czk","revenue_yoy","orders_yoy","customers_yoy"], {
         "year":"Rok",
         "revenue_czk":"Tržby",
         "orders":"Objednávky",
@@ -1271,24 +1363,32 @@ def build():
         "revenue_yoy":"Tržby meziročně",
         "orders_yoy":"Objednávky meziročně",
         "customers_yoy":"Zákazníci meziročně"
-      })}
-      <div class="note" style="margin-top:10px;">H1 2026 proti stejnému časovému oknu H1 2025 je rozpadnuté níž v tabulce propadu. Tady je čistý roční rámec nad celou 3letou bází.</div>
+      })}</details>
     </section>
 
     <section class="grid-2">
       <div class="panel">
         <h2>Měsíční tržby za 30 měsíců</h2>
-        <div class="note">Běžné měsíce jsou světle, listopady jsou zvýrazněné jako `Black Friday` měsíc a prosince zeleně.</div>
+        <div class="note">Běžné měsíce jsou světle, listopady zvýrazněné jako `Black Friday`, prosince zeleně.</div>
         <div style="margin-top:12px;">{monthly_chart}</div>
+        <details><summary>Ukázat tabulku po měsících</summary>{table(monthly_30_display, ["month","month_type","revenue_czk","orders","customers","aov_czk"], {
+          "month":"Měsíc",
+          "month_type":"Typ",
+          "revenue_czk":"Tržby",
+          "orders":"Objednávky",
+          "customers":"Zákazníci",
+          "aov_czk":"AOV"
+        })}</details>
       </div>
       <div class="panel">
         <h2>BF pattern</h2>
-        {table(bf_pattern_display, ["year","regular_avg_revenue_czk","november_delta","december_delta"], {
+        <div class="note">Listopad výrazně vystřelí, prosinec pak spadne pod listopad, ale ne pod běžný měsíc.</div>
+        <details open><summary>Ukázat BF srovnání</summary>{table(bf_pattern_display, ["year","regular_avg_revenue_czk","november_delta","december_delta"], {
           "year":"Rok",
           "regular_avg_revenue_czk":"Průměr běžného měsíce",
           "november_delta":"Listopad vs běžný měsíc",
           "december_delta":"Prosinec vs běžný měsíc"
-        })}
+        })}</details>
       </div>
     </section>
 
@@ -1296,21 +1396,24 @@ def build():
       <h2>Struktura zákaznické základny</h2>
       <div class="grid-2">
         <div>
-          {table(pdf_segment_display, ["band","customers","revenue_czk","revenue_share"], {
+          <div class="note">Nejdůležitější je pravý kraj: zákazníci s vysokým počtem objednávek nesou většinu tržeb.</div>
+          <div style="margin-top:12px;">{segment_chart}</div>
+          <details><summary>Ukázat tabulku segmentů</summary>{table(pdf_segment_display, ["band","customers","revenue_czk","revenue_share"], {
             "band":"Objednávky na zákazníka",
             "customers":"Zákazníci",
             "revenue_czk":"Tržby",
             "revenue_share":"Podíl na tržbách"
-          })}
+          })}</details>
         </div>
         <div>
-          {table(core_activity_display, ["segment","customers","active_90d_share","dormant_share","avg_annual_spend_czk"], {
+          <div class="note">Core síť je pořád silná, ale i tady už je vidět dormantní kus báze.</div>
+          <details open><summary>Ukázat core přehled</summary>{table(core_activity_display, ["segment","customers","active_90d_share","dormant_share","avg_annual_spend_czk"], {
             "segment":"Core síť",
             "customers":"Zákazníci",
             "active_90d_share":"Aktivní za 90 dní",
             "dormant_share":"Dormantní podíl",
             "avg_annual_spend_czk":"Průměrná roční útrata"
-          })}
+          })}</details>
           <div class="note" style="margin-top:10px;">Průměrná roční útrata je annualizovaná přes celé pozorované okno `2024-01` až `2026-06`.</div>
         </div>
       </div>
@@ -1319,19 +1422,21 @@ def build():
     <section class="grid-2">
       <div class="panel">
         <h2>Akvizice po kvartálech</h2>
-        {table(quarterly_display, ["quarter","new_customers","return_90d"], {
+        <div style="margin-top:12px;">{quarterly_chart}</div>
+        <details><summary>Ukázat kvartální tabulku</summary>{table(quarterly_display, ["quarter","new_customers","return_90d"], {
           "quarter":"Kvartál 1. nákupu",
           "new_customers":"Noví zákazníci",
           "return_90d":"Návrat do 90 dní"
-        })}
+        })}</details>
       </div>
       <div class="panel">
         <h2>Rychlost návratu k 2. nákupu</h2>
-        {table(second_purchase_display, ["window","customers","share"], {
+        <div style="margin-top:12px;">{second_purchase_chart}</div>
+        <details><summary>Ukázat návratová okna</summary>{table(second_purchase_display, ["window","customers","share"], {
           "window":"Nákupní okno",
           "customers":"Zákazníci",
           "share":"Podíl"
-        })}
+        })}</details>
         <div class="note" style="margin-top:10px;">Medián do 2. nákupu je `{second_purchase_median}` dní. To je čisté order-level číslo nad zákazníky, kde už se druhý nákup opravdu objevil.</div>
       </div>
     </section>
@@ -1339,40 +1444,46 @@ def build():
     <section class="grid-2">
       <div class="panel">
         <h2>Doprava zdarma</h2>
-        {table(free_shipping_display, ["metric","value","share"], {
+        <div style="margin-top:12px;">{free_shipping_chart}</div>
+        <details><summary>Ukázat detail</summary>{table(free_shipping_display, ["metric","value","share"], {
           "metric":"Metrika",
           "value":"Hodnota",
           "share":"Podíl objednávek"
-        })}
+        })}</details>
       </div>
       <div class="panel">
         <h2>Jak roste zákazník</h2>
-        {table(purchase_progression_display, ["purchase_label","orders","aov_czk","avg_items"], {
+        <div class="note">Čím víc nákupů za sebou, tím větší košík i vyšší AOV.</div>
+        <div style="margin-top:12px;">{progression_aov_chart}</div>
+        <div style="margin-top:12px;">{progression_items_chart}</div>
+        <details><summary>Ukázat tabulku</summary>{table(purchase_progression_display, ["purchase_label","orders","aov_czk","avg_items"], {
           "purchase_label":"Pořadí nákupu",
           "orders":"Pozorované objednávky",
           "aov_czk":"Průměrná objednávka",
           "avg_items":"Prům. počet položek"
-        })}
+        })}</details>
       </div>
     </section>
 
     <section class="grid-2">
       <div class="panel">
         <h2>Nákupní chování podle dnů</h2>
-        {table(weekday_display, ["weekday","orders","share"], {
+        <div style="margin-top:12px;">{weekday_chart}</div>
+        <details><summary>Ukázat tabulku</summary>{table(weekday_display, ["weekday","orders","share"], {
           "weekday":"Den",
           "orders":"Objednávky",
           "share":"Podíl"
-        })}
+        })}</details>
         <div class="note" style="margin-top:10px;">Nejsilnější den je `{strongest_weekday['weekday']}` ({fmt_pct(strongest_weekday['share'])}), nejslabší je `{weakest_weekday['weekday']}` ({fmt_pct(weakest_weekday['share'])}).</div>
       </div>
       <div class="panel">
         <h2>Nákupní chování podle hodin</h2>
-        {table(hourly_display, ["hour","orders","share"], {
+        <div style="margin-top:12px;">{hourly_chart}</div>
+        <details><summary>Ukázat tabulku</summary>{table(hourly_display, ["hour","orders","share"], {
           "hour":"Hodina",
           "orders":"Objednávky",
           "share":"Podíl"
-        })}
+        })}</details>
         <div class="note" style="margin-top:10px;">Peak hodina je `{peak_hour['hour']}`. Slot `18:00–21:59` dělá `{fmt_pct(evening_share)}` všech objednávek.</div>
       </div>
     </section>
@@ -1380,7 +1491,7 @@ def build():
     <section class="panel">
       <h2>1. Proč je rok 2026 slabší</h2>
       <div class="note">Tržby se tady rozpadají na tři hlavní části: počet aktivních zákazníků, kolikrát nakoupí a jak velkou mají objednávku. Srovnání je ve stejném časovém okně `1. 1. – 29. 6. 15:44` v `2025` a `2026`.</div>
-      {table(driver_display, ["market","active_customers_2025","active_customers_2026","active_customers_delta","orders_per_customer_2025","orders_per_customer_2026","orders_per_customer_delta","aov_2025","aov_2026","aov_delta","revenue_2025","revenue_2026","revenue_delta"], {
+      <details><summary>Ukázat rozpad propadu</summary>{table(driver_display, ["market","active_customers_2025","active_customers_2026","active_customers_delta","orders_per_customer_2025","orders_per_customer_2026","orders_per_customer_delta","aov_2025","aov_2026","aov_delta","revenue_2025","revenue_2026","revenue_delta"], {
         "market":"Trh",
         "active_customers_2025":"Aktivní zákazníci 2025",
         "active_customers_2026":"Aktivní zákazníci 2026",
@@ -1394,14 +1505,14 @@ def build():
         "revenue_2025":"Tržby 2025",
         "revenue_2026":"Tržby 2026",
         "revenue_delta":"Změna tržeb"
-      })}
+      })}</details>
       <div class="note" style="margin-top:10px;">Jednoduše řečeno: když ubývá aktivních zákazníků a zároveň se nezrychluje další nákup, nestačí přikoupit reklamu. Je potřeba řešit kvalitu nových zákazníků i návrat těch stávajících.</div>
     </section>
 
     <section class="panel">
       <h2>2. Jak se vracejí zákazníci podle měsíce prvního nákupu</h2>
       <div class="note">Každý řádek je měsíc prvního nákupu. Tohle ukazuje, jestli novější skupiny zákazníků jsou lepší, nebo horší než dřív.</div>
-      {table(cohort_display, ["cohort","customers","first_order_revenue_czk","rate_30d","rate_60d","rate_90d","rate_180d","third_order_90d"], {
+      <details><summary>Ukázat kohortovou tabulku</summary>{table(cohort_display, ["cohort","customers","first_order_revenue_czk","rate_30d","rate_60d","rate_90d","rate_180d","third_order_90d"], {
         "cohort":"Měsíc 1. nákupu",
         "customers":"Zákazníci",
         "first_order_revenue_czk":"Tržby z 1. nákupu",
@@ -1410,14 +1521,14 @@ def build():
         "rate_90d":"2. nákup do 90 dní",
         "rate_180d":"2. nákup do 180 dní",
         "third_order_90d":"3. nákup do 90 dní od 2."
-      })}
+      })}</details>
       <div class="note" style="margin-top:10px;">Praktický závěr: sleduj hlavně nové měsíce. Pokud se zhoršuje druhý nákup do `90 dní`, je problém už v kvalitě prvního nákupu nebo v prvních navazujících kampaních.</div>
     </section>
 
     <section class="grid-2">
       <div class="panel">
         <h2>3. Kde leží nejrychlejší peníze</h2>
-        {table(opp_display, ["segment","customers","segment_revenue_czk","avg_aov_czk","avg_recency_days","expected_conversion","estimated_incremental_revenue_czk","priority"], {
+        <details><summary>Ukázat segmenty příležitostí</summary>{table(opp_display, ["segment","customers","segment_revenue_czk","avg_aov_czk","avg_recency_days","expected_conversion","estimated_incremental_revenue_czk","priority"], {
           "segment":"Skupina",
           "customers":"Zákazníci",
           "segment_revenue_czk":"Tržby skupiny",
@@ -1426,7 +1537,7 @@ def build():
           "expected_conversion":"Odhad návratu",
           "estimated_incremental_revenue_czk":"Odhad obratu navíc",
           "priority":"Priorita"
-        })}
+        })}</details>
         <div class="note" style="margin-top:10px;">Tohle není účetní předpověď. Je to praktický odhad, který ukazuje, kde má práce nejrychlejší návrat.</div>
       </div>
       <div class="panel">
@@ -1442,27 +1553,29 @@ def build():
     <section class="grid-2">
       <div class="panel">
         <h2>4. Jak moc obrat stojí na malé skupině lidí</h2>
-        {table(conc_display, ["bucket","customers","revenue_share"], {
+        <details><summary>Ukázat koncentraci obratu</summary>{table(conc_display, ["bucket","customers","revenue_share"], {
           "bucket":"Skupina",
           "customers":"Zákazníci",
           "revenue_share":"Podíl na tržbách"
-        })}
+        })}</details>
         <div class="note" style="margin-top:10px;">Nejlepších `1 %` zákazníků dělá `{fmt_pct(next(r['revenue_share'] for r in concentration_rows if r['bucket']=='top_1pct'))}` obratu. To je velká páka, ale i riziko. Když tahle skupina oslabí, pocítí to celý byznys.</div>
       </div>
       <div class="panel">
         <h2>Kolik vydělávají zákazníci podle počtu objednávek</h2>
-        {table(tier_display, ["band","customers","revenue_czk","revenue_share"], {
+        <details><summary>Ukázat tabulku pásem</summary>{table(tier_display, ["band","customers","revenue_czk","revenue_share"], {
           "band":"Objednávky na zákazníka",
           "customers":"Zákazníci",
           "revenue_czk":"Tržby",
           "revenue_share":"Podíl na tržbách"
-        })}
+        })}</details>
       </div>
     </section>
 
     <section class="panel">
       <h2>5. Česko vs Slovensko</h2>
-      {table(market_display, ["market","customers","revenue_czk","orders","aov_czk","avg_items_per_order","median_customer_ltv","first_to_second_90d","seen_before_order_share"], {
+      <div class="note">SK má silnější ekonomiku objednávky, CZ zase objem. To není jeden trh, ale dva různé režimy.</div>
+      <div style="margin-top:12px;">{market_chart}</div>
+      <details><summary>Ukázat tabulku CZ vs SK</summary>{table(market_display, ["market","customers","revenue_czk","orders","aov_czk","avg_items_per_order","median_customer_ltv","first_to_second_90d","seen_before_order_share"], {
         "market":"Trh",
         "customers":"Zákazníci",
         "revenue_czk":"Tržby",
@@ -1472,7 +1585,7 @@ def build():
         "median_customer_ltv":"Medián hodnoty zákazníka",
         "first_to_second_90d":"2. nákup do 90 dní",
         "seen_before_order_share":"Podíl dříve viděných"
-      })}
+      })}</details>
       <div class="note" style="margin-top:10px;">Slovensko není silnější náhodou. Má vyšší průměrnou objednávku a podobnou rychlost návratu. Česko proto nepotřebuje jen víc objednávek, ale hlavně vyšší hodnotu košíku.</div>
     </section>
 
