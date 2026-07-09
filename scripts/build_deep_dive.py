@@ -1292,11 +1292,10 @@ def build():
     .grid-3 {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:18px; }}
     .grid-5 {{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin-top:18px; }}
     ul {{ margin:0; padding-left:20px; line-height:1.7; }}
-    .chart {{ margin-top:12px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; padding-bottom:6px; }}
-    .chart svg {{ display:block; width:100%; min-width:720px; height:auto; }}
-    .chart.compact svg {{ min-width:620px; }}
-    .table-scroll {{ margin-top:12px; overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--line); border-radius:16px; }}
-    table {{ width:100%; min-width:640px; border-collapse:collapse; font-size:14px; }}
+    .chart {{ margin-top:12px; overflow:visible; }}
+    .chart svg {{ display:block; width:100%; height:auto; }}
+    .table-scroll {{ margin-top:12px; overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,0.45); }}
+    table {{ width:100%; border-collapse:collapse; font-size:14px; }}
     th, td {{ padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }}
     th {{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }}
     .pill {{ display:inline-block; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--accent); font-size:13px; margin:0 8px 8px 0; }}
@@ -1306,6 +1305,7 @@ def build():
     .mini-card strong {{ display:block; font-size:14px; margin-bottom:4px; }}
     details {{ margin-top:12px; }}
     summary {{ cursor:pointer; color:var(--accent); font-size:14px; padding:6px 0; }}
+    details[open] summary {{ margin-bottom:8px; }}
     a {{ color:var(--accent); text-decoration:none; }}
     @media (max-width: 980px) {{
       .cards {{ grid-template-columns:repeat(2,minmax(0,1fr)); }}
@@ -1764,8 +1764,8 @@ def build():
     .meta, .note { color: var(--muted); font-size: 14px; line-height: 1.6; }
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
     ul { margin: 0; padding-left: 20px; line-height: 1.7; }
-    .table-scroll { margin-top: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: 16px; }
-    table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px; }
+    .table-scroll { margin-top: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,0.45); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
     th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
     .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--accent); font-size:13px; margin:0 8px 8px 0; }
